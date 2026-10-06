@@ -10,3 +10,5 @@ Demo A is one presentation package with two complementary experiments. It does *
 The one-wheel check runs 500 steps at 10 ms with a 0/6/0 V profile. The four-wheel drive run has 789 steps at 10 ms with turn, forward, and settling segments. Its trajectory is also reused by visual Demo B; this is why the shared four-wheel trace remains in `results/drive/` rather than being duplicated under Demo A. The video is a kinematic USD timeline render, not contact-physics or real-robot evidence.
 
 Run `scripts/run_wheel_demo.py` to reproduce the one-wheel validation, then `scripts/run_four_wheel_motion.py` and `scripts/build_timeline_scenes.py` to reproduce the four-wheel trajectory and animation. See the [main README](../README.md) for pinned setup and Isaac Sim commands, and [methods/results](RESULTS.md) for measured values and limitations.
+
+The plant FMU was created in the author's openSeRo/SeRo_MBE tool; see the [original modeling screenshots](OPENSERO_MODELING.md). These illustrate the model and its in-tool test bench. The numerical validation reported here is a separate check using the exported FMU, ovfmi, and direct FMPy.

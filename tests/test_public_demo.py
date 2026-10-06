@@ -17,6 +17,19 @@ from scripts.validate_demo_b import validate as validate_b
 
 
 class PublicDemoTests(unittest.TestCase):
+    def test_author_modeling_screenshots_and_gallery(self):
+        folder = ROOT / "assets/opensero/screenshots"
+        gallery = (ROOT / "docs/OPENSERO_MODELING.md").read_text(encoding="utf-8")
+        entries = (folder / "SHA256SUMS").read_text(encoding="utf-8").splitlines()
+        self.assertEqual(len(entries), 8)
+        self.assertEqual(len(list(folder.glob("*.png"))), 8)
+        for entry in entries:
+            expected, filename = entry.split("  ", 1)
+            path = folder / filename
+            self.assertTrue(path.is_file())
+            self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), expected)
+            self.assertIn(filename, gallery)
+
     def test_fmu_metadata_and_validation(self):
         fmu = ROOT / "fmus/MolonbotWheelPlant.fmu"
         self.assertEqual(fmpy.validation.validate_fmu(str(fmu)), [])

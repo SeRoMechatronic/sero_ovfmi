@@ -4,6 +4,14 @@ This repository is a small, public, MIT-licensed experiment showing **actual `ov
 
 The geometry is **original and synthetic**. No Molonbot robot mesh, observed room snapshot, private email, personal imagery, ROS bag, or third-party NVIDIA asset is included. The FMU is a didactic first-order model, not a calibrated physical motor. Nothing here commands a real robot.
 
+## Authored in openSeRo / SeRo_MBE
+
+The wheel-plant FMU was modeled and exported in the author's own tool. This original screenshot shows the voltage input, saturation, first-order wheel response, model parameters, and speed/angle outputs:
+
+![Wheel-plant block model in the author's SeRo_MBE/openSeRo interface](assets/opensero/screenshots/01_modelo_MolonbotWheelPlant.png)
+
+The [eight-image modeling and test-bench gallery](docs/OPENSERO_MODELING.md) also shows the function code, FMI 3.0 Co-Simulation export settings, and in-tool MIL-versus-FMU plots. The screenshots document the author's workflow; the independently checked numerical results below come from the included FMU, `ovfmi`, and FMPy.
+
 ## Demo A: numerical validation and robot-only visualization
 
 Demo A now groups both deliverables under one name: the [single-wheel signal validation](results/demo_A/validation/report.json) and the robot-only Isaac Sim video below. These are **complementary but separate runs**: the 500-step single-wheel test checks the USD/ovfmi/FMU signal route against FMPy, while the 789-step four-wheel run generates the trajectory used by the video. The single-wheel trace is not a direct measurement of the animated four-wheel run. See the [Demo A guide](docs/DEMO_A.md) for the exact relationship and files.
@@ -78,4 +86,4 @@ Only **one new FMU** is needed: an FMI 3.0 Co-Simulation wheel PI controller. Re
 
 ## License and limits
 
-The repository, including the author-owned openSeRo FMU, is licensed under [MIT](LICENSE). The FMU archive contains generated C source and Linux/Windows x86-64 binaries; see [FMU provenance](FMU_NOTICE.md). This repository does not claim real-time behavior, FMI 3 Scheduled Execution support, automatic PhysX coupling, SLAM, Nav2, calibrated digital-twin physics, or hardware safety. No part of it is intended for physical actuation.
+The repository, including the author-owned openSeRo FMU and the eight author-provided modeling screenshots, is licensed under [MIT](LICENSE). The FMU archive contains generated C source and Linux/Windows x86-64 binaries; see [FMU and screenshot provenance](FMU_NOTICE.md). This repository does not claim real-time behavior, FMI 3 Scheduled Execution support, automatic PhysX coupling, SLAM, Nav2, calibrated digital-twin physics, or hardware safety. No part of it is intended for physical actuation.
