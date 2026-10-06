@@ -1,6 +1,6 @@
 # SeRo × ovfmi — reproducible FMI 3.0 / OpenUSD demonstration
 
-This repository is a small, public, MIT-licensed experiment showing **actual `ovfmi` use**, not just a rendered digital twin. A wheel FMU made with **openSeRo** is declared in USD, discovered by `FmiHost`, advanced through `ovfmi`, and read back through `ovstage`. Every step is checked against an independent direct-FMPy run. A four-instance extension produces an offline robot trajectory and two timeline-playable Isaac Sim scenes.
+This repository is a small, public, MIT-licensed experiment showing **actual `ovfmi` use**, not just a rendered digital twin. Wheel-plant and PI-controller FMUs made with **openSeRo** are declared in USD, discovered by `FmiHost`, advanced through `ovfmi`, and read back through `ovstage`. Every step is checked against an independent direct-FMPy run. The results include numerical/visual Demos A and B and a two-FMU closed-loop Demo C.
 
 The geometry is **original and synthetic**. No Molonbot robot mesh, observed room snapshot, private email, personal imagery, ROS bag, or third-party NVIDIA asset is included. The FMU is a didactic first-order model, not a calibrated physical motor. Nothing here commands a real robot.
 
@@ -10,22 +10,23 @@ The wheel-plant FMU was modeled and exported in the author's own tool. This orig
 
 ![Wheel-plant block model in the author's SeRo_MBE/openSeRo interface](assets/opensero/screenshots/01_modelo_MolonbotWheelPlant.png)
 
-The [eight-image modeling and test-bench gallery](docs/OPENSERO_MODELING.md) also shows the function code, FMI 3.0 Co-Simulation export settings, and in-tool MIL-versus-FMU plots. The screenshots document the author's workflow; the independently checked numerical results below come from the included FMU, `ovfmi`, and FMPy.
+The [plant modeling gallery](docs/OPENSERO_MODELING.md) and [controller modeling gallery](docs/DEMO_C.md#authorship-opensero-model-and-bench) show function code, FMI 3.0 Co-Simulation export settings, and in-tool MIL-versus-FMU plots. The screenshots document the author's workflow; the independently checked numerical results below come from the included FMUs, `ovfmi`, and FMPy.
 
 ## Demo A: numerical validation and robot-only visualization
 
 Demo A now groups both deliverables under one name: the [single-wheel signal validation](results/demo_A/validation/report.json) and the robot-only Isaac Sim video below. These are **complementary but separate runs**: the 500-step single-wheel test checks the USD/ovfmi/FMU signal route against FMPy, while the 789-step four-wheel run generates the trajectory used by the video. The single-wheel trace is not a direct measurement of the animated four-wheel run. See the [Demo A guide](docs/DEMO_A.md) for the exact relationship and files.
 
-## Watch the two visual demos
+## Watch the three visual demos
 
 | Demo | Video | Animated OpenUSD stage | Numerical validation |
 |---|---|---|---|
 | A — robot only | [MP4](results/demo_A/demo_A_robot_only.mp4) | [USD](scenes/demo_A_robot_only.usda) | [Single-wheel FMU mapping](docs/DEMO_A.md) |
 | B — robot in a synthetic room | [MP4](results/demo_B/demo_B_synthetic_room.mp4) | [USD](scenes/demo_B_synthetic_room.usda) | [Four-wheel trace + scene/geometry check](docs/DEMO_B.md) |
+| C — PI controller + wheel plant | [MP4](results/demo_C/demo_C_closed_loop.mp4) | [USD](scenes/demo_C_wheel_visual.usda) | [1,000-step two-FMU closed loop](docs/DEMO_C.md) |
 
-Both USD stages contain the same **790 authored robot poses** over 7.89 s at 100 time codes/s. Open either in Isaac Sim and press **Play** in the Timeline. The videos are English-labelled H.264 renders (96 frames, 960×540, 12 fps). Motion is computed from four FMU wheel-angle outputs using a declared no-slip differential-drive assumption; Isaac Sim renders the resulting USD animation. It does **not** solve wheel contacts or prove physical-robot behavior. The synthetic wheel meshes do not spin.
+Demos A and B contain the same **790 authored robot poses** over 7.89 s at 100 time codes/s. Their videos are English-labelled H.264 renders (96 frames, 960×540, 12 fps). Motion is computed from four FMU wheel-angle outputs using a declared no-slip differential-drive assumption. Demo C instead shows a wheel-angle indicator and two signal bars for a 10-second closed-loop trace (61 rendered frames). Isaac Sim replays authored USD data; it does **not** solve wheel contacts or prove physical-robot behavior.
 
-The [two-video page](results/index.html) is convenient for local playback after cloning.
+The [three-video page](results/index.html) is convenient for local playback after cloning.
 
 ## Numerical evidence
 
@@ -40,8 +41,11 @@ The [two-video page](results/index.html) is convenient for local playback after 
 | Synthetic aisle travel / final heading error | `2.20149 m` / `-0.00605 rad` |
 | Demo B USD poses matched to four-wheel trace | 790 / 790; maximum position and heading errors `0` |
 | Demo B minimum synthetic object / wall / floor margins after chosen footprint | `0.6541 m` / `0.76 m` / `0.8 m` |
+| Demo C two-FMU, 10 ms closed-loop steps | `1,000` |
+| Demo C maximum ovfmi vs direct FMPy output difference | `1.9025629498514718e-6` |
+| Demo C maximum controller voltage / +30 rad/s saturation time | `12 V` / `0.75 s` |
 
-The [Demo A one-wheel trace](results/demo_A/validation/trace.csv), [signal plot](results/demo_A/validation/trace.svg), [validation report](results/demo_A/validation/report.json), [four-wheel trajectory](results/drive/trajectory.csv), [four-wheel report](results/drive/report.json), [Demo B scene-validation report](results/demo_B/validation/report.json), and [methods/results note](docs/RESULTS.md) are included. Demo B reuses the **same** four-FMU/FMPy comparison that generates both visual replays; its own additional check verifies every composed USD pose, signal mapping, and coarse synthetic room clearance. It is not a second independent FMU simulation. The small `ovfmi`–FMPy differences are consistent with `ovfmi` 0.2 publishing ordinary outputs as float32, while the FMU declares Float64. These are numerical correctness comparisons, **not** a controlled performance benchmark.
+The [Demo A one-wheel trace](results/demo_A/validation/trace.csv), [four-wheel trajectory](results/drive/trajectory.csv), [Demo B scene-validation report](results/demo_B/validation/report.json), [Demo C closed-loop trace and plot](docs/DEMO_C.md), and [methods/results note](docs/RESULTS.md) are included. Demo B reuses the **same** four-FMU/FMPy comparison that generates both A/B visual replays; Demo C is a new two-FMU simulation. The small `ovfmi`–FMPy differences are consistent with `ovfmi` 0.2 publishing ordinary outputs as float32, while the FMUs declare Float64. These are numerical correctness comparisons, **not** a controlled performance benchmark.
 
 The [first-step probe](results/first_step_probe.json) documents a version-specific negative finding: with `ovfmi==0.2.0`, changing an input in ovstage after attachment but before the first step did not affect that first step in this configuration. The main profiles initialize at 0 V and change later, so they do not hide that behavior.
 
@@ -59,6 +63,10 @@ python3.10 -m venv .venv
 .venv/bin/python scripts/run_four_wheel_motion.py
 .venv/bin/python scripts/build_timeline_scenes.py
 .venv/bin/python scripts/validate_demo_b.py
+.venv/bin/python scripts/validate_demo_c_scene.py
+.venv/bin/python scripts/run_demo_c.py
+.venv/bin/python scripts/plot_demo_c.py
+.venv/bin/python scripts/build_demo_c_visual.py
 .venv/bin/python -m unittest discover -s tests -v
 ```
 
@@ -70,7 +78,7 @@ To regenerate the two videos, run the next commands with a working Isaac Sim 6.0
 python3 scripts/encode_timeline_demos.py
 ```
 
-For immediate, looping GUI playback with a framed camera, use `/path/to/isaacsim/python.sh scripts/open_timeline_demo_isaac.py --demo A` or `--demo B`. This opens only the synthetic offline scene; it does not connect to ROS or hardware.
+For Demo C's offline signal visualization, run `/path/to/isaacsim/python.sh scripts/render_demo_c_isaac.py` then `python3 scripts/encode_demo_c.py` (system Python with OpenCV). Open any animated USD in Isaac Sim and press **Play** in the Timeline. For immediate A/B GUI playback with a framed camera, use `/path/to/isaacsim/python.sh scripts/open_timeline_demo_isaac.py --demo A` or `--demo B`. None of these commands connects to ROS or hardware.
 
 The scene paths are relative. `scripts/inspect_drive_geometry.py` runs in a separate Python process because the tested `ovstage` and `usd-core` packages load different USD libraries. The checked wheel radius, track, obstacles, and walls are **chosen synthetic software-test values**, not measurements or safety margins for a robot.
 
@@ -80,10 +88,10 @@ In [Demo A's minimal validation stage](scenes/demo_A_wheel_validation.usda), `Fm
 
 In [the four-wheel stage](scenes/demo_movimiento_4ruedas.usda), four separate `FmuInstance` prims map to FL/FR/BL/BR state prims. The [four-wheel runner](scripts/run_four_wheel_motion.py) checks every instance against its own direct FMPy reference, integrates the robot pose from published angle increments, and writes the trace. [The animation builder](scripts/build_timeline_scenes.py) then bakes those poses into a reusable USD layer shared by visual Demos A and B. This explicit adapter is why the robot moves; `ovfmi` does not automatically drive Isaac articulations.
 
-## Next experiment: closed-loop Demo C
+## Demo C: closed-loop coupling
 
-Only **one new FMU** is needed: an FMI 3.0 Co-Simulation wheel PI controller. Reuse the included wheel-plant FMU. The exact variable names, units, update equation, one-step coupling schedule, export requirements, and acceptance tests are in [the Demo C FMU specification](docs/DEMO_C_FMU_SPEC.md). It is a proposal, **not a completed result**.
+The new FMI 3.0 Co-Simulation [PI-controller FMU](fmus/MolonbotWheelPIController.fmu) and the existing wheel-plant FMU now run as two mapped instances in [one USD stage](scenes/demo_C_closed_loop.usda). The explicit one-step communication delay avoids an implicit algebraic loop. The [Demo C guide](docs/DEMO_C.md) separates the completed evidence, author modeling screenshots, limitations, and reproduction commands; the [original export contract](docs/DEMO_C_FMU_SPEC.md) remains available for comparison.
 
 ## License and limits
 
-The repository, including the author-owned openSeRo FMU and the eight author-provided modeling screenshots, is licensed under [MIT](LICENSE). The FMU archive contains generated C source and Linux/Windows x86-64 binaries; see [FMU and screenshot provenance](FMU_NOTICE.md). This repository does not claim real-time behavior, FMI 3 Scheduled Execution support, automatic PhysX coupling, SLAM, Nav2, calibrated digital-twin physics, or hardware safety. No part of it is intended for physical actuation.
+The repository, including both author-owned openSeRo FMUs and the 16 author-provided modeling screenshots, is licensed under [MIT](LICENSE). The FMU archives contain generated C source and Linux/Windows x86-64 binaries; see [FMU and screenshot provenance](FMU_NOTICE.md). This repository does not claim real-time behavior, FMI 3 Scheduled Execution support, automatic PhysX coupling, SLAM, Nav2, calibrated digital-twin physics, or hardware safety. No part of it is intended for physical actuation.

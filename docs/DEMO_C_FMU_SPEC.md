@@ -1,6 +1,6 @@
 # Demo C — exact FMU contract for a closed-loop ovfmi experiment
 
-Status: **specification only**. Demo C has not been run because the controller FMU does not yet exist. This document is the export contract for openSeRo and the acceptance plan for the subsequent experiment.
+Status: **fulfilled for the offline two-FMU experiment**. The controller FMU has been delivered and Demo C has been run. This document preserves the original export contract and pre-experiment acceptance plan; see the [completed Demo C guide](DEMO_C.md) and [measured report](../results/demo_C/report.json) for current evidence. Future-tense wording below is retained as the historical contract.
 
 ## How many FMUs?
 

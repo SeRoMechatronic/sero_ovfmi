@@ -1,0 +1,108 @@
+{
+  "status": "passed",
+  "scope": "offline two-FMU closed loop; no ROS or physical robot control",
+  "schedule": "Jacobi with one-step communication delay; controller and plant receive previous published peer outputs",
+  "scene": "scenes/demo_C_closed_loop.usda",
+  "scene_sha256": "04cfae3f96e93097bf18da3195e61f5cb79d8bdfc04a91b4a898bf90a83ce839",
+  "controller_fmu_sha256": "5b61db8b91e1618539984222841e2b8c986f5cb9812698c5cd1bc3a3720bdafd",
+  "plant_fmu_sha256": "5cdb7566ef9dcffbca455a31fad3588fde8063e535002ec8899454965d695f76",
+  "usd_fmu_mapping_preflight": "passed",
+  "versions": {
+    "fmpy": "0.3.25",
+    "ovstage": "0.2.0.377349",
+    "ovfmi": "0.2.0"
+  },
+  "steps": 1000,
+  "h_s": 0.01,
+  "trace_sha256": "3e6de6fd10672f3ca02b86813434a90675d2c136871dc161a28d4515bc0371e8",
+  "max_abs_ovstage_vs_ovfmi": 0.0,
+  "max_abs_direct_fmpy_vs_analytic": 0.0,
+  "max_abs_ovfmi_vs_direct_fmpy_by_signal": {
+    "voltage_cmd_V": 5.37743883199937e-07,
+    "error_rad_s": 1.7053236263109284e-06,
+    "integral_V": 4.568028391105372e-07,
+    "voltage_applied_V": 5.37743883199937e-07,
+    "omega_rad_s": 9.116117425378434e-07,
+    "theta_rad": 1.9025629498514718e-06
+  },
+  "declared_ovfmi_vs_fmpy_tolerance": 5e-05,
+  "ovfmi_repeatable": true,
+  "metrics": {
+    "segments": [
+      {
+        "interval_s": [
+          0.2,
+          3.2
+        ],
+        "reference_rad_s": 8.0,
+        "reference_step_rad_s": 8.0,
+        "final_error_rad_s": 0.020714759826660156,
+        "saturated_time_s": 0.0,
+        "overshoot_rad_s": 0.0,
+        "overshoot_pct_of_step": 0.0,
+        "settling_time_2pct_s": 1.88
+      },
+      {
+        "interval_s": [
+          3.2,
+          4.2
+        ],
+        "reference_rad_s": 0.0,
+        "reference_step_rad_s": -8.0,
+        "final_error_rad_s": -0.8004100322723389,
+        "saturated_time_s": 0.0,
+        "overshoot_rad_s": 0.0,
+        "overshoot_pct_of_step": 0.0,
+        "settling_time_2pct_s": null
+      },
+      {
+        "interval_s": [
+          4.2,
+          6.2
+        ],
+        "reference_rad_s": -6.0,
+        "reference_step_rad_s": -6.0,
+        "final_error_rad_s": -0.11663675308227539,
+        "saturated_time_s": 0.0,
+        "overshoot_rad_s": 0.0,
+        "overshoot_pct_of_step": 0.0,
+        "settling_time_2pct_s": 1.99
+      },
+      {
+        "interval_s": [
+          6.2,
+          7.2
+        ],
+        "reference_rad_s": 30.0,
+        "reference_step_rad_s": 36.0,
+        "final_error_rad_s": 6.58203125,
+        "saturated_time_s": 0.75,
+        "overshoot_rad_s": 0.0,
+        "overshoot_pct_of_step": 0.0,
+        "settling_time_2pct_s": null
+      },
+      {
+        "interval_s": [
+          7.2,
+          10.0
+        ],
+        "reference_rad_s": 0.0,
+        "reference_step_rad_s": -30.0,
+        "final_error_rad_s": -0.0761207789182663,
+        "saturated_time_s": 0.0,
+        "overshoot_rad_s": 0.0,
+        "overshoot_pct_of_step": 0.0,
+        "settling_time_2pct_s": 1.67
+      }
+    ],
+    "saturation_recovery_after_7_2_s": 0.01,
+    "max_abs_command_V": 12.0,
+    "max_abs_integral_V": 10.920764923095703,
+    "command_sign_changes": 2
+  },
+  "limitations": [
+    "The plant is a didactic first-order model, not a calibrated physical motor.",
+    "USD/ovstage ordinary signals are observed as float32 in ovfmi 0.2; direct FMPy uses FMU Float64 values.",
+    "No hardware actuation, contact physics, Nav2, or zero-delay feedback is claimed."
+  ]
+}

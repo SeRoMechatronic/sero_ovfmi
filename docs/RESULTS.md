@@ -1,6 +1,6 @@
 # Methods, measurements, and limitations
 
-Recorded 6 October 2026 on Linux x86-64 with Python 3.10, `ovfmi 0.2.0`, `ovstage 0.2.0.377349`, `FMPy 0.3.25`, and the included openSeRo-generated FMI 3.0 Co-Simulation FMU. The [lock file](../requirements.lock) lists exact Python packages. The experiment is offline and synthetic. The reported one-process wall times are exploratory, not a controlled benchmark.
+Recorded 6 October 2026 on Linux x86-64 with Python 3.10, `ovfmi 0.2.0`, `ovstage 0.2.0.377349`, `FMPy 0.3.25`, and two included openSeRo-generated FMI 3.0 Co-Simulation FMUs. The [lock file](../requirements.lock) lists exact Python packages. The experiment is offline and synthetic. The reported one-process wall times are exploratory, not a controlled benchmark.
 
 ## Model and mapping
 
@@ -68,11 +68,28 @@ The [Demo B validator](../scripts/validate_demo_b.py) checks the **composed B st
 
 These are deterministic software and coarse axis-aligned geometry checks on an **original synthetic room**. They do not show that the scene matches a real room, that PhysX contact is correct, or that a physical robot can traverse the path safely. See the [Demo B guide](DEMO_B.md) for the evidence chain.
 
+## Demo C: closed-loop controller and plant
+
+The newly authored [PI-controller FMU](../fmus/MolonbotWheelPIController.fmu) has SHA-256 `5b61db8b91e1618539984222841e2b8c986f5cb9812698c5cd1bc3a3720bdafd`. Its metadata validates as FMI 3.0 Co-Simulation with a fixed 10 ms step, Linux/Windows x64 binaries, scalar Float64 variables, and declared units. The previously published plant FMU is unchanged. The [Demo C USD](../scenes/demo_C_closed_loop.usda) contains exactly two `FmuInstance` prims, each mapped to a distinct USD state prim. The [runner](../scripts/run_demo_c.py) performs 1,000 simultaneous controller/plant steps with previous-step peer outputs. Direct FMPy orchestration and an independent analytic recurrence evaluate the same schedule. The [CSV](../results/demo_C/trace.csv) gives every input and output at every step; the [JSON report](../results/demo_C/report.json) binds them to exact hashes.
+
+| Demo C observation | Result |
+|---|---:|
+| Successful 10 ms steps / elapsed model time | 1,000 / 10 s |
+| Maximum ovstage vs ovfmi publication difference | `0` |
+| Maximum ovfmi vs direct FMPy output difference | `1.9025629498514718e-6` |
+| Maximum direct FMPy vs independent analytic difference | `0` |
+| Declared acceptance tolerance for ovfmi/FMPy | `5e-5` |
+| Repeated ovfmi trace hash | identical in the tested environment |
+| Maximum command / +30 rad/s saturation duration | `12 V` / `0.75 s` |
+| Measured +8 rad/s 2%-band settling time | `1.88 s` |
+
+The 0 rad/s interval at 3.2–4.2 s and the +30 rad/s interval at 6.2–7.2 s did **not** settle within their intervals. This is reported as `null`, not silently interpreted as zero. The reported final errors are snapshot errors at each segment boundary, not all steady-state errors. The 2%-band settling time reported for −6 rad/s is `1.99 s`, nearly the entire 2 s segment. Controller output remains within ±12 V, including saturation. The [unit tests](../tests/test_demo_c.py) verify the exact first-step result, FMU metadata, rejection of NaN input, invalid parameters, and an unsupported 20 ms communication step. They also mutate a scratch copy of the USD to demonstrate that the [mapping preflight](../scripts/validate_demo_c_scene.py) rejects a wrong variable, disconnected target, wrong start value, and missing FMU. The [Isaac Sim MP4](../results/demo_C/demo_C_closed_loop.mp4) replays published angle/reference/speed samples as a data visualization, not physical simulation. See the [Demo C guide](DEMO_C.md) for the schedule, screenshots of the author's openSeRo model, visualization provenance, and reproduction commands.
+
 ## What these measurements do not establish
 
 - They do not validate a real motor, battery, wheel radius, room geometry, localization estimate, obstacle avoidance, or Nav2 behavior.
 - USD pose animation is not PhysX traction/contact simulation. The wheel meshes do not rotate in the videos.
 - FMU numerical agreement is not a latency or throughput benchmark. The single-run `attach_ms`, median, and p95 fields in the JSON are exploratory only.
-- No controller FMU, closed-loop Demo C, FMI Scheduled Execution, SSP packaging, or ovfmi 0.3 comparison has been tested here. See the [separate Demo C export contract](DEMO_C_FMU_SPEC.md).
+- Demo C tests an **offline, didactic** controller–plant loop only. It does not establish real-time control, safe actuation, calibrated motor response, four-wheel closed-loop navigation, FMI Scheduled Execution, SSP packaging, or behavior with ovfmi 0.3.
 
 Primary references: [ovfmi package page](https://pypi.org/project/ovfmi/) and [FMI 3.0.2 specification](https://fmi-standard.org/docs/3.0.2/).

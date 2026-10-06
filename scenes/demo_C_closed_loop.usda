@@ -1,0 +1,116 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    upAxis = "Z"
+    customLayerData = {
+        string purpose = "Demo C: offline two-FMU PI wheel-speed loop, explicit one-step communication delay"
+        string safety = "No ROS, robot actuators, or physical robot connection"
+    }
+)
+
+def Xform "World"
+{
+    def Xform "ControllerState"
+    {
+        float molonbot:omega_ref_rad_s = 0
+        float molonbot:omega_meas_rad_s = 0
+        float molonbot:voltage_cmd_V = 0
+        float molonbot:error_rad_s = 0
+        float molonbot:integral_V = 0
+    }
+
+    def Xform "PlantState"
+    {
+        float molonbot:voltage_cmd_V = 0
+        float molonbot:voltage_applied_V = 0
+        float molonbot:omega_rad_s = 0
+        float molonbot:theta_rad = 0
+    }
+
+    def Xform "FmuModels"
+    {
+        def FmuInstance "Controller"
+        {
+            asset fmi:fmu = @../fmus/MolonbotWheelPIController.fmu@
+            bool fmi:enabled = true
+            def FmuConnection "Signals"
+            {
+                rel fmi:targets = </World/ControllerState>
+                def FmuMapping "Reference"
+                {
+                    string fmi:fmuAttribute = "omega_ref_rad_s"
+                    string fmi:usdAttribute = "molonbot:omega_ref_rad_s"
+                    token fmi:direction = "input"
+                    int2 fmi:usdMapping = (0, 1)
+                }
+                def FmuMapping "Measurement"
+                {
+                    string fmi:fmuAttribute = "omega_meas_rad_s"
+                    string fmi:usdAttribute = "molonbot:omega_meas_rad_s"
+                    token fmi:direction = "input"
+                    int2 fmi:usdMapping = (0, 1)
+                }
+                def FmuMapping "Command"
+                {
+                    string fmi:fmuAttribute = "voltage_cmd_V"
+                    string fmi:usdAttribute = "molonbot:voltage_cmd_V"
+                    token fmi:direction = "output"
+                    int2 fmi:usdMapping = (0, 1)
+                }
+                def FmuMapping "Error"
+                {
+                    string fmi:fmuAttribute = "error_rad_s"
+                    string fmi:usdAttribute = "molonbot:error_rad_s"
+                    token fmi:direction = "output"
+                    int2 fmi:usdMapping = (0, 1)
+                }
+                def FmuMapping "Integral"
+                {
+                    string fmi:fmuAttribute = "integral_V"
+                    string fmi:usdAttribute = "molonbot:integral_V"
+                    token fmi:direction = "output"
+                    int2 fmi:usdMapping = (0, 1)
+                }
+            }
+        }
+
+        def FmuInstance "Plant"
+        {
+            asset fmi:fmu = @../fmus/MolonbotWheelPlant.fmu@
+            bool fmi:enabled = true
+            def FmuConnection "Signals"
+            {
+                rel fmi:targets = </World/PlantState>
+                def FmuMapping "Command"
+                {
+                    string fmi:fmuAttribute = "voltage_cmd_V"
+                    string fmi:usdAttribute = "molonbot:voltage_cmd_V"
+                    token fmi:direction = "input"
+                    int2 fmi:usdMapping = (0, 1)
+                }
+                def FmuMapping "Applied"
+                {
+                    string fmi:fmuAttribute = "voltage_applied_V"
+                    string fmi:usdAttribute = "molonbot:voltage_applied_V"
+                    token fmi:direction = "output"
+                    int2 fmi:usdMapping = (0, 1)
+                }
+                def FmuMapping "Speed"
+                {
+                    string fmi:fmuAttribute = "omega_rad_s"
+                    string fmi:usdAttribute = "molonbot:omega_rad_s"
+                    token fmi:direction = "output"
+                    int2 fmi:usdMapping = (0, 1)
+                }
+                def FmuMapping "Angle"
+                {
+                    string fmi:fmuAttribute = "theta_rad"
+                    string fmi:usdAttribute = "molonbot:theta_rad"
+                    token fmi:direction = "output"
+                    int2 fmi:usdMapping = (0, 1)
+                }
+            }
+        }
+    }
+}

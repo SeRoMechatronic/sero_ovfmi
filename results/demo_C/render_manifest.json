@@ -1,0 +1,14 @@
+{
+  "demo": "C",
+  "status": "complete",
+  "scene": "scenes/demo_C_wheel_visual.usda",
+  "scene_sha256": "65737cb4c448e7355dd5d6689ab2f8288635b7fbc5b0be9e9cde11cf8a2dfdbe",
+  "trace_sha256": "3e6de6fd10672f3ca02b86813434a90675d2c136871dc161a28d4515bc0371e8",
+  "frame_stream_sha256": "3d9dfb438913a8c1cc2097b9b3e9756b8b34180964a4f9aede376f093cbaf61e",
+  "frames": 61,
+  "fps": 6,
+  "duration_s": 10.0,
+  "width": 960,
+  "height": 540,
+  "scope": "Isaac Sim render of offline FMU-derived USD signal visualization; no physical simulation"
+}

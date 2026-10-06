@@ -1,0 +1,15 @@
+{
+  "demo": "C",
+  "video": "demo_C_closed_loop.mp4",
+  "sha256": "9045d861fbc5e9eb69d4a147cf982123758b9164d1f51d8d414e213bc08452d9",
+  "scene": "scenes/demo_C_wheel_visual.usda",
+  "scene_sha256": "65737cb4c448e7355dd5d6689ab2f8288635b7fbc5b0be9e9cde11cf8a2dfdbe",
+  "trace_sha256": "3e6de6fd10672f3ca02b86813434a90675d2c136871dc161a28d4515bc0371e8",
+  "frames": 61,
+  "fps": 6,
+  "width": 960,
+  "height": 540,
+  "duration_s": 10.0,
+  "codec": "H.264",
+  "scope": "Offline data visualization; wheel pointer follows FMU angle; no physics or hardware"
+}

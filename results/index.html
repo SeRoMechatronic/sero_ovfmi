@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>SeRo × ovfmi — reproducible visual demos</title>
+  <title>SeRo × ovfmi — three reproducible visual demos</title>
   <style>
     :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #0d1520; color: #edf5ff; }
     body { margin: 0 auto; max-width: 1180px; padding: 24px; }
@@ -19,7 +19,7 @@
 </head>
 <body>
   <h1>SeRo × ovfmi</h1>
-  <p>Two Isaac Sim recordings of the same time-sampled, four-FMU robot motion. The room and robot visuals are original synthetic OpenUSD primitives; the included FMI 3.0 wheel FMU was made with openSeRo.</p>
+  <p>Three Isaac Sim recordings: Demos A and B replay the same time-sampled four-FMU robot motion, while Demo C visualizes a separate closed loop with an openSeRo PI controller FMU and wheel-plant FMU. All visuals are original synthetic OpenUSD primitives.</p>
   <div class="grid">
     <article>
       <h2>Demo A — FMU validation + robot-only replay</h2>
@@ -33,8 +33,14 @@
       <p><a href="demo_B/demo_B_synthetic_room.mp4">MP4</a> · <a href="../scenes/demo_B_synthetic_room.usda">animated USD</a> · <a href="demo_B/video_metadata.json">metadata</a></p>
       <p>Numerical scene check: <a href="demo_B/validation/report.json">790-pose/geometry report</a> · <a href="drive/trajectory.csv">shared four-FMU trajectory</a> · <a href="drive/report.json">FMU/FMPy comparison</a>. This is a synthetic-room consistency check, not robot-safety evidence.</p>
     </article>
+    <article>
+      <h2>Demo C — controller + plant closed loop</h2>
+      <video src="demo_C/demo_C_closed_loop.mp4" poster="demo_C/preview.jpg" controls preload="metadata" playsinline></video>
+      <p><a href="demo_C/demo_C_closed_loop.mp4">MP4</a> · <a href="../scenes/demo_C_wheel_visual.usda">animated USD</a> · <a href="demo_C/video_metadata.json">video metadata</a></p>
+      <p>Two mapped FMUs, 1,000 steps at 10 ms: <a href="demo_C/trace.csv">per-step CSV</a> · <a href="demo_C/trace.svg">signal plot</a> · <a href="demo_C/report.json">numerical report</a> · <a href="../docs/DEMO_C.md">methods and openSeRo model gallery</a>.</p>
+    </article>
   </div>
-  <p><small>7.89 s, 789 FMI 3.0 Co-Simulation steps, four independent wheel-FMU instances. Offline kinematic replay only: no real robot, contact physics, live reconstruction, or obstacle-avoidance claim.</small></p>
-  <p><a href="../docs/RESULTS.md">Methods and measured results</a> · <a href="drive/trajectory.csv">Source trajectory CSV</a> · <a href="../docs/DEMO_C_FMU_SPEC.md">Proposed closed-loop Demo C</a></p>
+  <p><small>A/B: 7.89 s, 789 FMI 3.0 Co-Simulation steps, four independent wheel-FMU instances. C: 10 s, 1,000 steps, one PI controller and one wheel plant. Offline data replay only: no real robot, contact physics, live reconstruction, or obstacle-avoidance claim.</small></p>
+  <p><a href="../docs/RESULTS.md">Methods and measured results</a> · <a href="../docs/DEMO_C_FMU_SPEC.md">Original Demo C FMU contract</a></p>
 </body>
 </html>
