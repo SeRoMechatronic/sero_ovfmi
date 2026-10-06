@@ -60,6 +60,8 @@ class DemoDTests(unittest.TestCase):
         with TRACE.open(newline="", encoding="utf-8") as stream:
             rows = list(csv.DictReader(stream))
         self.assertEqual(report["status"], "passed")
+        self.assertEqual(report["environment"], "single_ground")
+        self.assertTrue(report["disabled_duplicate_room_floor_collision_in_session"])
         self.assertEqual((report["steps"], len(rows)), (320, 1280))
         digest = hashlib.sha256(TRACE.read_bytes()).hexdigest()
         self.assertEqual(report["trace_sha256"], digest)

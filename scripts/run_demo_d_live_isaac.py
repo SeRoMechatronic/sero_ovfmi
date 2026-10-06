@@ -84,8 +84,9 @@ def main() -> int:
     parser.add_argument("--fmi-python", type=Path, default=ROOT / ".venv/bin/python")
     parser.add_argument("--profile", choices=("forward_reverse", "turn"),
                         default="forward_reverse")
-    parser.add_argument("--environment", choices=("full", "clear"), default="full",
-                        help="clear keeps the local robot and ground, but disables room geometry")
+    parser.add_argument("--environment", choices=("full", "clear", "single_ground"),
+                        default="single_ground",
+                        help="clear disables room geometry; single_ground keeps it but disables the duplicate room-floor collider")
     parser.add_argument("--steps", type=int, default=320)
     parser.add_argument("--settle-steps", type=int, default=0,
                         help="diagnostic PhysX warm-up; nonzero values expose ovfmi 0.2's first-step input edge case")
@@ -138,6 +139,7 @@ def main() -> int:
                 graph.SetActive(False)
                 disabled_graphs.append(path)
         disabled_room = []
+        disabled_room_floor_collision = False
         if args.environment == "clear":
             for path in ("/World/estructura_sala_actual", "/World/gemelo_semantico",
                          "/World/mapa_camara_actual", "/World/mapa_l2_actual"):
@@ -145,6 +147,12 @@ def main() -> int:
                 if prim.IsValid():
                     prim.SetActive(False)
                     disabled_room.append(path)
+        elif args.environment == "single_ground":
+            from pxr import UsdPhysics
+            floor = stage.GetPrimAtPath("/World/estructura_sala_actual/Floor")
+            if floor.IsValid() and floor.HasAPI(UsdPhysics.CollisionAPI):
+                UsdPhysics.CollisionAPI(floor).CreateCollisionEnabledAttr(False)
+                disabled_room_floor_collision = True
         world = World(stage_units_in_meters=1.0, physics_dt=H, rendering_dt=H)
         robot = world.scene.add(Robot(prim_path="/World/jetauto", name="demo_d_molonbot"))
         world.reset()
@@ -357,6 +365,7 @@ def main() -> int:
             "trace_sha256": sha256(trace),
             "disabled_ros_graphs_in_session": disabled_graphs,
             "disabled_room_prims_in_session": disabled_room,
+            "disabled_duplicate_room_floor_collision_in_session": disabled_room_floor_collision,
             "joint_names": list(JOINTS), "joint_indices": indices,
             "synthetic_motor": {
                 "torque_gain_Nm_per_V": TORQUE_GAIN,

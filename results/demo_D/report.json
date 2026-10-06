@@ -2,7 +2,7 @@
   "status": "passed",
   "scope": "live FMU-controlled Isaac/PhysX simulation; no ROS or physical robot",
   "profile": "forward_reverse",
-  "environment": "clear",
+  "environment": "single_ground",
   "steps": 320,
   "h_s": 0.01,
   "uncommanded_settle_steps": 0,
@@ -11,7 +11,7 @@
   "plant_fmus_role": "shadow prediction only; PhysX is the controlled plant",
   "communication_delay_steps": 1,
   "live_rendered_frames": 30,
-  "live_video_sha256": "489c901ad9a6e77ed03ce7dc6ae50e42518d3106790b84f430e25b17bfe6bf61",
+  "live_video_sha256": "9dccc60b4bbac39c4488c819972198940ded5cd3ab3ff2c8b825f256a360b279",
   "scene_sha256": "88fa4817227250d927f7c9588d83a30c45765f480ade1d9b9e12fa230829baae",
   "fmi_contract_sha256": "f230191ed3ba7f4fdeb24cee30425ca8318a97be2f72495cc1ce755e32bbf763",
   "controller_fmu_sha256": "5b61db8b91e1618539984222841e2b8c986f5cb9812698c5cd1bc3a3720bdafd",
@@ -20,12 +20,8 @@
   "disabled_ros_graphs_in_session": [
     "/World/action_graphs"
   ],
-  "disabled_room_prims_in_session": [
-    "/World/estructura_sala_actual",
-    "/World/gemelo_semantico",
-    "/World/mapa_camara_actual",
-    "/World/mapa_l2_actual"
-  ],
+  "disabled_room_prims_in_session": [],
+  "disabled_duplicate_room_floor_collision_in_session": true,
   "joint_names": [
     "wheel_left_front_joint",
     "wheel_right_front_joint",

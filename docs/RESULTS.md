@@ -87,18 +87,18 @@ The 0 rad/s interval at 3.2–4.2 s and the +30 rad/s interval at 6.2–7.2 s di
 
 ## Demo D: live FMI control of PhysX joints
 
-Unlike A/B/C, Demo D does not animate authored robot poses. Four PI-controller FMU instances read actual Isaac Sim/PhysX wheel-joint velocities and command joint efforts through an explicitly synthetic motor adapter. Four plant-FMU instances are shadow models only. The [public trace](../results/demo_D/trace.csv) contains 320 steps and 1,280 wheel rows from a clear-ground run of the local articulated robot. The [run report](../results/demo_D/report.json) records the exact FMU, USD, and trace hashes; the [independent FMPy replay](../results/demo_D/replay_validation.json) re-steps all eight FMUs with the measured inputs.
+Unlike A/B/C, Demo D does not animate authored robot poses. Four PI-controller FMU instances read actual Isaac Sim/PhysX wheel-joint velocities and command joint efforts through an explicitly synthetic motor adapter. Four plant-FMU instances are shadow models only. The [public trace](../results/demo_D/trace.csv) contains 320 steps and 1,280 wheel rows from the local articulated robot with the room loaded and only its duplicate floor collider disabled in a session layer. The [run report](../results/demo_D/report.json) records the exact FMU, USD, and trace hashes; the [independent FMPy replay](../results/demo_D/replay_validation.json) re-steps all eight FMUs with the measured inputs.
 
 | Demo D observation | Result |
 |---|---:|
 | Live PhysX/FMI communication steps | 320 × 10 ms |
 | Maximum FMPy versus ovfmi-published signal difference | `2.384185791015625e-7` |
 | Maximum one-step continuity / synthetic torque-equation difference | `0` / `0 N·m` |
-| Maximum clear-ground wheel speed / command | `2.93377 rad/s` / `4.68954 V` |
-| Maximum clear-ground base excursion from initial pose | `0.15246 m` |
-| Maximum clear-ground wheel-speed spread | `0.09728 rad/s` |
+| Maximum single-ground wheel speed / command | `2.93377 rad/s` / `4.68954 V` |
+| Maximum single-ground base excursion from initial pose | `0.15246 m` |
+| Maximum single-ground wheel-speed spread | `0.09728 rad/s` |
 
-The local real-time camera captured 30 frames during the physics steps; the MP4 is held outside the public repo because its robot/room mesh has not been cleared for MIT publication. In a separate full-room run, the maximum wheel-speed spread rose to `16.50184 rad/s`; we suspect interaction with nearby geometry, but no contact-event trace was recorded, so this is an **inference**, not a diagnosed collision. A turn-in-place diagnostic did not rotate the base sufficiently and is not counted as passed. See the [Demo D guide](DEMO_D.md) for process boundaries, assumptions, commands, and limitations.
+The local real-time camera captured 30 frames during the physics steps; the MP4 is held outside the public repo because its robot/room mesh has not been cleared for MIT publication. In a separate raw `full` run with both coplanar floor colliders active, the maximum wheel-speed spread rose to `16.50184 rad/s`. Disabling **only** the reconstructed-floor collider reduced that spread to `0.09728 rad/s` while keeping the room loaded; the single-change comparison strongly implicates duplicate ground contact, though no PhysX contact-event trace was recorded. A turn-in-place diagnostic did not rotate the base sufficiently and is not counted as passed. See the [Demo D guide](DEMO_D.md) for process boundaries, assumptions, commands, and limitations.
 
 ## What these measurements do not establish
 

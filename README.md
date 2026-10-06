@@ -46,7 +46,7 @@ The [three-video page](results/index.html) is convenient for local playback afte
 | Demo C maximum controller voltage / +30 rad/s saturation time | `12 V` / `0.75 s` |
 | Demo D live PhysX steps / four-wheel samples | `320` / `1,280` |
 | Demo D maximum ovfmi vs independent FMPy replay difference | `2.384185791015625e-7` |
-| Demo D clear-run maximum wheel speed / excursion from start | `2.934 rad/s` / `0.152 m` |
+| Demo D single-ground room-run maximum wheel speed / excursion from start | `2.934 rad/s` / `0.152 m` |
 
 The [Demo A one-wheel trace](results/demo_A/validation/trace.csv), [four-wheel trajectory](results/drive/trajectory.csv), [Demo B scene-validation report](results/demo_B/validation/report.json), [Demo C closed-loop trace and plot](docs/DEMO_C.md), and [methods/results note](docs/RESULTS.md) are included. Demo B reuses the **same** four-FMU/FMPy comparison that generates both A/B visual replays; Demo C is a new two-FMU simulation. The small `ovfmi`–FMPy differences are consistent with `ovfmi` 0.2 publishing ordinary outputs as float32, while the FMUs declare Float64. These are numerical correctness comparisons, **not** a controlled performance benchmark.
 
@@ -97,7 +97,7 @@ The new FMI 3.0 Co-Simulation [PI-controller FMU](fmus/MolonbotWheelPIController
 
 ## Demo D: live Isaac Sim/PhysX feedback
 
-Four PI-controller FMU instances command simulated joint efforts through a declared, **uncalibrated** voltage-to-torque adapter while Isaac Sim/PhysX measures all four wheel speeds every 10 ms. Four wheel-plant FMUs are separate shadow predictions, not the controlled physics plant. The [Demo D guide](docs/DEMO_D.md) provides the process boundary, code, public 320-step trace, independent FMPy replay, and the precise limitations. The local articulated robot and room assets, and the live video containing their imagery, are not included in this public repository. Forward/reverse was demonstrated on a clear ground; turn-in-place did not pass and full-room contact needs further work. Nothing was sent to physical hardware.
+Four PI-controller FMU instances command simulated joint efforts through a declared, **uncalibrated** voltage-to-torque adapter while Isaac Sim/PhysX measures all four wheel speeds every 10 ms. Four wheel-plant FMUs are separate shadow predictions, not the controlled physics plant. The [Demo D guide](docs/DEMO_D.md) provides the process boundary, code, public 320-step trace, independent FMPy replay, and the precise limitations. The local articulated robot and room assets, and the live video containing their imagery, are not included in this public repository. Forward/reverse was demonstrated with the room loaded after a session-only fix for its duplicate ground collider; turn-in-place did not pass. Nothing was sent to physical hardware.
 
 ## License and limits
 
