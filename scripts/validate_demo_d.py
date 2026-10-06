@@ -64,21 +64,36 @@ def main() -> int:
     trace = args.trace.resolve()
     report_path = trace.with_name("report.json")
     report = json.loads(report_path.read_text(encoding="utf-8"))
+    if report.get("trace_sha256") != digest(trace):
+        raise AssertionError("Trace SHA-256 does not match the run report")
     motor = report["synthetic_motor"]
-    gain = float(motor["torque_gain_Nm_per_V"])
-    back_emf = float(motor["back_emf_V_per_rad_s"])
-    torque_limit = float(motor["torque_limit_Nm"])
+    motor_model = report.get("motor_model", "direct_torque")
+    if motor_model == "direct_torque":
+        gain = float(motor["torque_gain_Nm_per_V"])
+        back_emf = float(motor["back_emf_V_per_rad_s"])
+        torque_limit = float(motor["torque_limit_Nm"])
+        motor_unit = "N m"
+    elif motor_model == "bounded_velocity_drive":
+        speed_per_volt = float(motor["speed_per_volt_rad_s_per_V"])
+        effort_limit = float(motor["effort_limit_Nm"])
+        if not (math.isfinite(speed_per_volt) and speed_per_volt > 0
+                and math.isfinite(effort_limit) and effort_limit > 0):
+            raise AssertionError("Invalid bounded velocity-drive configuration")
+        motor_unit = "rad/s"
+    else:
+        raise AssertionError(f"Unknown motor model: {motor_model}")
     with trace.open(newline="", encoding="utf-8") as stream:
         rows = list(csv.DictReader(stream))
     if not rows or len(rows) % 4:
         raise AssertionError("Expected a non-empty trace with exactly four rows per step")
     steps = len(rows) // 4
     max_error = 0.0
-    max_torque_error = 0.0
+    max_motor_error = 0.0
     max_continuity_error = 0.0
     max_abs_speed = 0.0
     max_abs_voltage = 0.0
     saturated_samples = 0
+    max_abs_measured_effort = 0.0
     previous_measured = {wheel: 0.0 for wheel in WHEELS}
     previous_command = {wheel: 0.0 for wheel in WHEELS}
     instances = []
@@ -114,10 +129,19 @@ def main() -> int:
                     max_continuity_error = max(max_continuity_error,
                                                abs(measured - previous_measured[wheel]),
                                                abs(applied - previous_command[wheel]))
-                    expected_torque = np.clip(gain * (applied - back_emf * measured),
-                                              -torque_limit, torque_limit)
-                    max_torque_error = max(max_torque_error,
-                                           abs(float(row["torque_Nm"]) - expected_torque))
+                    if motor_model == "direct_torque":
+                        expected_motor = np.clip(gain * (applied - back_emf * measured),
+                                                 -torque_limit, torque_limit)
+                        actual_motor = float(row["torque_Nm"])
+                    else:
+                        expected_motor = np.clip(speed_per_volt * applied, -12.0, 12.0)
+                        actual_motor = float(row["motor_target_rad_s"])
+                        measured_effort = float(row["measured_joint_effort_Nm"])
+                        if not math.isfinite(measured_effort):
+                            raise AssertionError("Non-finite PhysX joint effort")
+                        max_abs_measured_effort = max(max_abs_measured_effort,
+                                                      abs(measured_effort))
+                    max_motor_error = max(max_motor_error, abs(actual_motor - expected_motor))
                     controller, c_refs, plant, p_refs = models[wheel]
                     # ovstage writes scalar Float attributes, therefore its FMU inputs
                     # are quantized to Float32 even though the FMUs use Float64.
@@ -147,19 +171,53 @@ def main() -> int:
                 close_fmu(instance)
     if max_error > TOL:
         raise AssertionError(f"Direct FMPy/ovfmi disagreement {max_error} > {TOL}")
-    if max_continuity_error > 1e-5 or max_torque_error > 1e-9:
+    if max_continuity_error > 1e-5 or max_motor_error > 1e-9:
         raise AssertionError("The logged one-step delay or motor equation is inconsistent")
+    if motor_model == "bounded_velocity_drive" and max_abs_measured_effort > effort_limit + 0.01:
+        raise AssertionError("Measured PhysX effort exceeded the declared drive limit")
     if max_abs_voltage > 12.00001:
         raise AssertionError("Controller voltage exceeded FMU limits")
+    turn_yaw_changes = None
+    terminal_turn_speed = None
+    terminal_heading_drift = None
+    minimum_turn_directional_peak = None
+    if report.get("profile") == "turn":
+        heading = lambda step: float(rows[4 * (step - 1)]["base_yaw_rad"])
+        turn_yaw_changes = [heading(100) - heading(20), heading(220) - heading(140)]
+        if (any(abs(change) < 0.05 for change in turn_yaw_changes)
+                or turn_yaw_changes[0] * turn_yaw_changes[1] >= 0):
+            raise AssertionError("The two recorded PhysX turns do not reverse heading")
+        directional_peaks = []
+        for start, stop, signs_expected in ((20, 100, (-1, 1, -1, 1)),
+                                            (140, 220, (1, -1, 1, -1))):
+            for index, sign in enumerate(signs_expected):
+                directional_peaks.append(max(
+                    sign * float(rows[4 * step + index]["measured_after_rad_s"])
+                    for step in range(start, stop)))
+        minimum_turn_directional_peak = min(directional_peaks)
+        if minimum_turn_directional_peak < 0.5:
+            raise AssertionError("A turn wheel did not spin in its commanded direction")
+        terminal_turn_speed = max(abs(float(row["measured_after_rad_s"])) for row in rows[-4:])
+        terminal_heading_drift = abs(float(rows[-4]["base_yaw_rad"])
+                                     - float(rows[4 * (steps - 50)]["base_yaw_rad"]))
+        if terminal_turn_speed > 0.15 or terminal_heading_drift > 0.01:
+            raise AssertionError("The recorded PhysX turn did not settle at zero reference")
     result = {
         "status": "passed", "steps": steps, "wheel_samples": len(rows),
+        "motor_model": motor_model,
         "fmu_instances_replayed": 8, "trace_sha256": digest(trace),
         "controller_fmu_sha256": digest(CONTROLLER),
         "plant_fmu_sha256": digest(PLANT),
         "comparison_tolerance": TOL,
         "maximum_abs_fmpy_ovfmi_signal_difference": max_error,
         "maximum_abs_step_continuity_difference": max_continuity_error,
-        "maximum_abs_motor_equation_difference_Nm": max_torque_error,
+        "maximum_abs_motor_equation_difference": max_motor_error,
+        "motor_equation_difference_unit": motor_unit,
+        "maximum_abs_measured_joint_effort_Nm": max_abs_measured_effort if motor_model == "bounded_velocity_drive" else None,
+        "turn_yaw_changes_rad": turn_yaw_changes,
+        "terminal_max_abs_wheel_speed_rad_s": terminal_turn_speed,
+        "terminal_heading_drift_last_50_steps_rad": terminal_heading_drift,
+        "minimum_turn_directional_peak_rad_s": minimum_turn_directional_peak,
         "maximum_abs_physx_wheel_speed_rad_s": max_abs_speed,
         "maximum_abs_controller_voltage_V": max_abs_voltage,
         "saturated_wheel_samples": saturated_samples,

@@ -1,0 +1,27 @@
+{
+  "status": "passed",
+  "steps": 500,
+  "wheel_samples": 2000,
+  "motor_model": "bounded_velocity_drive",
+  "fmu_instances_replayed": 8,
+  "trace_sha256": "2d14ddd9e09ca3ddc5f0b773ca8ecca4717e7906c77ffc1f94c3a9492eded6f9",
+  "controller_fmu_sha256": "5b61db8b91e1618539984222841e2b8c986f5cb9812698c5cd1bc3a3720bdafd",
+  "plant_fmu_sha256": "5cdb7566ef9dcffbca455a31fad3588fde8063e535002ec8899454965d695f76",
+  "comparison_tolerance": 0.0001,
+  "maximum_abs_fmpy_ovfmi_signal_difference": 2.384185791015625e-07,
+  "maximum_abs_step_continuity_difference": 0.0,
+  "maximum_abs_motor_equation_difference": 0.0,
+  "motor_equation_difference_unit": "rad/s",
+  "maximum_abs_measured_joint_effort_Nm": 0.5023183822631836,
+  "turn_yaw_changes_rad": [
+    -0.19956595308560077,
+    0.10494306553967236
+  ],
+  "terminal_max_abs_wheel_speed_rad_s": 0.07189248502254486,
+  "terminal_heading_drift_last_50_steps_rad": 0.0029530964667980886,
+  "minimum_turn_directional_peak_rad_s": 2.251018762588501,
+  "maximum_abs_physx_wheel_speed_rad_s": 4.990655422210693,
+  "maximum_abs_controller_voltage_V": 3.3457448482513428,
+  "saturated_wheel_samples": 0,
+  "scope": "Numerical FMU/ovfmi replay of live Isaac measurements; not a hardware validation"
+}

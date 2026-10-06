@@ -33,6 +33,9 @@ H = 0.01
 TORQUE_GAIN = 0.004  # synthetic N m / V; not identified from Molonbot hardware
 BACK_EMF = 0.20     # synthetic V / (rad/s)
 TORQUE_LIMIT = 0.05  # synthetic N m
+DRIVE_SPEED_PER_VOLT = 1.0  # synthetic rad/s / V, not hardware calibrated
+DRIVE_DAMPING = 1.0         # synthetic N m / (rad/s)
+DRIVE_EFFORT_LIMIT = 0.5    # synthetic N m per wheel
 
 
 def sha256(path: Path) -> str:
@@ -84,10 +87,17 @@ def main() -> int:
     parser.add_argument("--fmi-python", type=Path, default=ROOT / ".venv/bin/python")
     parser.add_argument("--profile", choices=("forward_reverse", "turn"),
                         default="forward_reverse")
-    parser.add_argument("--environment", choices=("full", "clear", "single_ground"),
+    parser.add_argument("--environment", choices=("full", "clear", "single_ground", "room_shell",
+                                                  "no_semantic", "no_maps", "no_cabinets"),
                         default="single_ground",
-                        help="clear disables room geometry; single_ground keeps it but disables the duplicate room-floor collider")
-    parser.add_argument("--steps", type=int, default=320)
+                        help="clear disables room geometry; single_ground removes duplicate floor contact; room_shell also hides semantic/map collision groups")
+    parser.add_argument("--motor-model", choices=("direct_torque", "bounded_velocity_drive"),
+                        default="direct_torque",
+                        help="select the explicitly modeled voltage-to-PhysX actuator; legacy direct torque remains the default")
+    parser.add_argument("--freeze-cabinets", action="store_true",
+                        help="session-only: hold the six unanchored cabinet rigid bodies kinematic while retaining their visual meshes and colliders")
+    parser.add_argument("--steps", type=int, default=None,
+                        help="default: 320 for forward/reverse, 500 for turn (includes a settling check)")
     parser.add_argument("--settle-steps", type=int, default=0,
                         help="diagnostic PhysX warm-up; nonzero values expose ovfmi 0.2's first-step input edge case")
     parser.add_argument("--capture-video", action="store_true",
@@ -95,6 +105,8 @@ def main() -> int:
     parser.add_argument("--camera-height-m", type=float, default=4.0)
     parser.add_argument("--camera-focal-mm", type=float, default=15.0)
     args, kit_args = parser.parse_known_args()
+    if args.steps is None:
+        args.steps = 500 if args.profile == "turn" else 320
     if args.steps < 320 or args.steps > 2000:
         raise ValueError("Choose between 320 and 2,000 10 ms steps")
     if args.settle_steps < 0 or args.settle_steps > 100:
@@ -147,12 +159,40 @@ def main() -> int:
                 if prim.IsValid():
                     prim.SetActive(False)
                     disabled_room.append(path)
-        elif args.environment == "single_ground":
+        elif args.environment in ("room_shell", "no_semantic", "no_maps", "no_cabinets"):
+            paths = {
+                "room_shell": ("/World/gemelo_semantico", "/World/mapa_camara_actual",
+                               "/World/mapa_l2_actual"),
+                "no_semantic": ("/World/gemelo_semantico",),
+                "no_maps": ("/World/mapa_camara_actual", "/World/mapa_l2_actual"),
+                "no_cabinets": ("/World/gemelo_semantico/cabinet_1",
+                                "/World/gemelo_semantico/cabinet_2"),
+            }[args.environment]
+            for path in paths:
+                prim = stage.GetPrimAtPath(path)
+                if prim.IsValid():
+                    prim.SetActive(False)
+                    disabled_room.append(path)
+        if args.environment in ("single_ground", "room_shell", "no_semantic", "no_maps", "no_cabinets"):
             from pxr import UsdPhysics
             floor = stage.GetPrimAtPath("/World/estructura_sala_actual/Floor")
             if floor.IsValid() and floor.HasAPI(UsdPhysics.CollisionAPI):
                 UsdPhysics.CollisionAPI(floor).CreateCollisionEnabledAttr(False)
                 disabled_room_floor_collision = True
+        frozen_cabinet_bodies = []
+        if args.freeze_cabinets:
+            from pxr import Usd, UsdPhysics
+            for cabinet_path in ("/World/gemelo_semantico/cabinet_1",
+                                 "/World/gemelo_semantico/cabinet_2"):
+                cabinet = stage.GetPrimAtPath(cabinet_path)
+                if not cabinet.IsValid() or not cabinet.IsActive():
+                    raise RuntimeError(f"Cabinet not available for session stabilization: {cabinet_path}")
+                for prim in Usd.PrimRange(cabinet):
+                    if prim.HasAPI(UsdPhysics.RigidBodyAPI):
+                        UsdPhysics.RigidBodyAPI(prim).CreateKinematicEnabledAttr(True)
+                        frozen_cabinet_bodies.append(str(prim.GetPath()))
+            if len(frozen_cabinet_bodies) != 6:
+                raise RuntimeError(f"Expected six cabinet rigid bodies, found {len(frozen_cabinet_bodies)}")
         world = World(stage_units_in_meters=1.0, physics_dt=H, rendering_dt=H)
         robot = world.scene.add(Robot(prim_path="/World/jetauto", name="demo_d_molonbot"))
         world.reset()
@@ -164,15 +204,28 @@ def main() -> int:
         kps, kds = controller.get_gains()
         kps, kds = np.asarray(kps).copy(), np.asarray(kds).copy()
         kps[indices] = 0.0
-        kds[indices] = 0.0
+        kds[indices] = 0.0 if args.motor_model == "direct_torque" else DRIVE_DAMPING
         controller.set_gains(kps=kps, kds=kds)
-        if (np.any(np.asarray(controller.get_gains()[0])[indices] != 0)
-                or np.any(np.asarray(controller.get_gains()[1])[indices] != 0)):
-            raise RuntimeError("Wheel drives did not enter effort mode")
+        if args.motor_model == "bounded_velocity_drive":
+            robot._articulation_view.set_max_efforts(
+                np.full((1, 4), DRIVE_EFFORT_LIMIT, dtype=float), joint_indices=indices,
+            )
+        actual_kps, actual_kds = controller.get_gains()
+        actual_kds = np.asarray(actual_kds)[indices]
+        expected_kd = 0.0 if args.motor_model == "direct_torque" else DRIVE_DAMPING
+        if (np.any(np.asarray(actual_kps)[indices] != 0)
+                or not np.allclose(actual_kds, expected_kd, atol=1e-6)):
+            raise RuntimeError("Wheel drives did not enter the requested control mode")
+        if args.motor_model == "bounded_velocity_drive":
+            max_efforts = np.asarray(robot._articulation_view.get_max_efforts(joint_indices=indices), dtype=float)
+            if not np.allclose(max_efforts, DRIVE_EFFORT_LIMIT, atol=1e-6):
+                raise RuntimeError("Wheel velocity drives did not accept the effort limit")
         for _ in range(args.settle_steps):
-            robot.apply_action(ArticulationAction(
-                joint_efforts=np.zeros(4, dtype=float), joint_indices=indices,
-            ))
+            if args.motor_model == "direct_torque":
+                action = ArticulationAction(joint_efforts=np.zeros(4, dtype=float), joint_indices=indices)
+            else:
+                action = ArticulationAction(joint_velocities=np.zeros(4, dtype=float), joint_indices=indices)
+            robot.apply_action(action)
             world.step(render=False)
 
         captured_frames = 0
@@ -221,7 +274,8 @@ def main() -> int:
                 "measured_after_rad_s", "voltage_applied_to_physx_V",
                 "voltage_cmd_V", "error_rad_s", "integral_V",
                 "shadow_voltage_applied_V", "shadow_omega_rad_s", "shadow_theta_rad",
-                "torque_Nm", "base_x_m", "base_y_m", "base_z_m", "base_yaw_rad",
+                "torque_Nm", "motor_target_rad_s", "measured_joint_effort_Nm",
+                "base_x_m", "base_y_m", "base_z_m", "base_yaw_rad",
             ]
             rows = []
             previous_voltage = np.zeros(4, dtype=float)
@@ -241,13 +295,20 @@ def main() -> int:
                     [answer["controller"][wheel]["voltage_cmd_V"] for wheel in WHEELS],
                     dtype=float,
                 )
-                torque = np.clip(TORQUE_GAIN * (previous_voltage - BACK_EMF * measured_before),
-                                 -TORQUE_LIMIT, TORQUE_LIMIT)
-                if not np.all(np.isfinite(torque)) or np.max(np.abs(torque)) > TORQUE_LIMIT:
-                    raise RuntimeError(f"Invalid simulated motor effort at step {step}")
-                robot.apply_action(ArticulationAction(
-                    joint_efforts=torque, joint_indices=indices,
-                ))
+                if args.motor_model == "direct_torque":
+                    torque = np.clip(TORQUE_GAIN * (previous_voltage - BACK_EMF * measured_before),
+                                     -TORQUE_LIMIT, TORQUE_LIMIT)
+                    motor_target = np.zeros(4, dtype=float)
+                    if not np.all(np.isfinite(torque)) or np.max(np.abs(torque)) > TORQUE_LIMIT:
+                        raise RuntimeError(f"Invalid simulated motor effort at step {step}")
+                    action = ArticulationAction(joint_efforts=torque, joint_indices=indices)
+                else:
+                    torque = np.zeros(4, dtype=float)
+                    motor_target = np.clip(DRIVE_SPEED_PER_VOLT * previous_voltage, -12.0, 12.0)
+                    if not np.all(np.isfinite(motor_target)):
+                        raise RuntimeError(f"Invalid motor speed target at step {step}")
+                    action = ArticulationAction(joint_velocities=motor_target, joint_indices=indices)
+                robot.apply_action(action)
                 render_frame = args.capture_video and step % 10 == 0
                 world.step(render=render_frame)
                 if render_frame:
@@ -265,7 +326,7 @@ def main() -> int:
                             f"t={(step + 1) * H:.2f}s  ref={ref[0]:+.1f} rad/s  "
                             f"wheel={float(live_speed[0]):+.2f} rad/s  V={voltage[0]:+.2f}",
                             f"base=({live_position[0]:+.2f}, {live_position[1]:+.2f}) m  "
-                            f"mode={args.environment}  SIMULATION ONLY",
+                            f"actuator={'bounded drive' if args.motor_model == 'bounded_velocity_drive' else 'direct torque'}  SIM ONLY",
                         )
                         for line_index, label in enumerate(overlay):
                             cv2.putText(bgr, label, (9, 24 + 34 * line_index),
@@ -276,8 +337,10 @@ def main() -> int:
                             cv2.imwrite(str(output / "live_first_frame.png"), bgr)
                         captured_frames += 1
                 measured_after = np.asarray(robot.get_joint_velocities()[indices], dtype=float)
+                measured_effort = np.asarray(robot.get_measured_joint_efforts(joint_indices=indices), dtype=float)
                 position, orientation = robot.get_world_pose()
-                if not np.all(np.isfinite(measured_after)) or not np.all(np.isfinite(position)):
+                if (not np.all(np.isfinite(measured_after)) or not np.all(np.isfinite(position))
+                        or not np.all(np.isfinite(measured_effort))):
                     raise RuntimeError(f"Non-finite PhysX state at step {step}")
                 yaw = yaw_from_quat_wxyz(orientation)
                 for index, wheel in enumerate(WHEELS):
@@ -295,7 +358,9 @@ def main() -> int:
                         "shadow_voltage_applied_V": p["voltage_applied_V"],
                         "shadow_omega_rad_s": p["omega_rad_s"],
                         "shadow_theta_rad": p["theta_rad"],
-                        "torque_Nm": torque[index],
+                        "torque_Nm": torque[index] if args.motor_model == "direct_torque" else "",
+                        "motor_target_rad_s": motor_target[index] if args.motor_model == "bounded_velocity_drive" else "",
+                        "measured_joint_effort_Nm": measured_effort[index],
                         "base_x_m": position[0], "base_y_m": position[1],
                         "base_z_m": position[2], "base_yaw_rad": yaw,
                     })
@@ -331,8 +396,12 @@ def main() -> int:
         ) for row in rows)
         max_speed = max(abs(row["measured_after_rad_s"]) for row in rows)
         max_voltage = max(abs(row["voltage_cmd_V"]) for row in rows)
+        max_measured_effort = max(abs(row["measured_joint_effort_Nm"]) for row in rows)
         max_yaw_change = max(abs(float(row["base_yaw_rad"] - rows[0]["base_yaw_rad"]))
                              for row in rows)
+        terminal_wheel_speed = max(abs(float(row["measured_after_rad_s"])) for row in rows[-4:])
+        terminal_heading_drift = abs(float(rows[-4]["base_yaw_rad"]
+                                           - rows[4 * (args.steps - 50)]["base_yaw_rad"]))
         max_wheel_speed_spread = max(
             max(float(rows[4 * step + index]["measured_after_rad_s"]) for index in range(4))
             - min(float(rows[4 * step + index]["measured_after_rad_s"]) for index in range(4))
@@ -347,11 +416,27 @@ def main() -> int:
         if args.profile == "forward_reverse":
             if max_displacement < 0.02 or not all(len(value) == 2 for value in signs.values()):
                 raise AssertionError("Forward/reverse profile did not move and reverse all four wheels")
-        elif max_yaw_change < 0.05:
-            raise AssertionError("Turn profile did not change the simulated robot heading")
+        else:
+            heading = lambda step: float(rows[4 * (step - 1)]["base_yaw_rad"])
+            yaw_first = heading(100) - heading(20)
+            yaw_second = heading(220) - heading(140)
+            directional_peaks = []
+            for start, stop, signs_expected in ((20, 100, (-1, 1, -1, 1)),
+                                                (140, 220, (1, -1, 1, -1))):
+                for index, sign in enumerate(signs_expected):
+                    directional_peaks.append(max(
+                        sign * float(rows[4 * step + index]["measured_after_rad_s"])
+                        for step in range(start, stop)))
+            minimum_turn_directional_peak = min(directional_peaks)
+            if (max_yaw_change < 0.05 or abs(yaw_first) < 0.05 or abs(yaw_second) < 0.05
+                    or yaw_first * yaw_second >= 0 or max_displacement > 0.30
+                    or minimum_turn_directional_peak < 0.5
+                    or terminal_wheel_speed > 0.15 or terminal_heading_drift > 0.01):
+                raise AssertionError("Turn profile did not produce two opposite bounded PhysX turns and settle")
         report = {
             "status": "passed", "scope": "live FMU-controlled Isaac/PhysX simulation; no ROS or physical robot",
             "profile": args.profile, "environment": args.environment,
+            "motor_model": args.motor_model,
             "steps": args.steps, "h_s": H, "uncommanded_settle_steps": args.settle_steps,
             "fmu_instances": 8, "controllers_in_feedback": 4,
             "plant_fmus_role": "shadow prediction only; PhysX is the controlled plant",
@@ -366,12 +451,18 @@ def main() -> int:
             "disabled_ros_graphs_in_session": disabled_graphs,
             "disabled_room_prims_in_session": disabled_room,
             "disabled_duplicate_room_floor_collision_in_session": disabled_room_floor_collision,
+            "kinematic_cabinet_bodies_in_session": frozen_cabinet_bodies,
             "joint_names": list(JOINTS), "joint_indices": indices,
             "synthetic_motor": {
-                "torque_gain_Nm_per_V": TORQUE_GAIN,
-                "back_emf_V_per_rad_s": BACK_EMF,
-                "torque_limit_Nm": TORQUE_LIMIT,
-                "equation": "clip(gain * (previous_controller_voltage - back_emf * measured_wheel_speed), +/-torque_limit)",
+                **({"torque_gain_Nm_per_V": TORQUE_GAIN,
+                    "back_emf_V_per_rad_s": BACK_EMF,
+                    "torque_limit_Nm": TORQUE_LIMIT,
+                    "equation": "clip(gain * (previous_controller_voltage - back_emf * measured_wheel_speed), +/-torque_limit)"}
+                   if args.motor_model == "direct_torque" else
+                   {"speed_per_volt_rad_s_per_V": DRIVE_SPEED_PER_VOLT,
+                    "velocity_drive_damping_Nm_s_per_rad": DRIVE_DAMPING,
+                    "effort_limit_Nm": DRIVE_EFFORT_LIMIT,
+                    "equation": "target_speed = clip(speed_per_volt * previous_controller_voltage, +/-12 rad/s); PhysX implicit velocity drive with bounded effort"}),
             },
             "base_displacement_from_initial_m": displacement,
             "maximum_base_displacement_from_initial_m": max_displacement,
@@ -379,9 +470,16 @@ def main() -> int:
             "maximum_wheel_speed_spread_rad_s": max_wheel_speed_spread,
             "maximum_abs_base_yaw_change_rad": max_yaw_change,
             "maximum_abs_controller_voltage_V": max_voltage,
+            "maximum_abs_measured_joint_effort_Nm": max_measured_effort,
+            "terminal_max_abs_wheel_speed_rad_s": terminal_wheel_speed,
+            "terminal_heading_drift_last_50_steps_rad": terminal_heading_drift,
+            "first_turn_yaw_change_rad": yaw_first if args.profile == "turn" else None,
+            "second_turn_yaw_change_rad": yaw_second if args.profile == "turn" else None,
+            "minimum_turn_directional_peak_rad_s": minimum_turn_directional_peak if args.profile == "turn" else None,
             "all_wheels_reversed_measured_rotation": all(len(value) == 2 for value in signs.values()),
             "limitations": [
                 "Motor constants and wheel/ground friction are simulation assumptions, not physical calibration.",
+                "The bounded velocity drive is a PhysX inner servo, not a voltage-to-torque DC motor model." if args.motor_model == "bounded_velocity_drive" else "The direct torque law is uncalibrated.",
                 "The local Molonbot USD is not included in the public repository.",
                 "The four shadow plant FMUs do not actuate PhysX.",
                 "No real-time wall-clock guarantee, hardware control, or mecanum lateral-motion validation is claimed.",

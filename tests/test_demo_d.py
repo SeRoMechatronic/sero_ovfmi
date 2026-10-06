@@ -19,6 +19,9 @@ STAGE = ROOT / "scenes/demo_D_live_fmi_contract.usda"
 TRACE = ROOT / "results/demo_D/trace.csv"
 REPORT = ROOT / "results/demo_D/report.json"
 REPLAY = ROOT / "results/demo_D/replay_validation.json"
+TURN_TRACE = ROOT / "results/demo_D_turn/trace.csv"
+TURN_REPORT = ROOT / "results/demo_D_turn/report.json"
+TURN_REPLAY = ROOT / "results/demo_D_turn/replay_validation.json"
 WHEELS = ("FL", "FR", "BL", "BR")
 
 
@@ -80,7 +83,6 @@ class DemoDTests(unittest.TestCase):
     def test_replay_rejects_tampered_fmu_output(self):
         with tempfile.TemporaryDirectory(prefix="sero_demo_d_tamper_") as directory:
             directory = Path(directory)
-            (directory / "report.json").write_bytes(REPORT.read_bytes())
             with TRACE.open(newline="", encoding="utf-8") as stream:
                 rows = list(csv.DictReader(stream))
             rows[100]["voltage_cmd_V"] = str(float(rows[100]["voltage_cmd_V"]) + 0.5)
@@ -89,6 +91,9 @@ class DemoDTests(unittest.TestCase):
                 writer = csv.DictWriter(stream, fieldnames=rows[0].keys())
                 writer.writeheader()
                 writer.writerows(rows)
+            report = json.loads(REPORT.read_text(encoding="utf-8"))
+            report["trace_sha256"] = hashlib.sha256(scratch.read_bytes()).hexdigest()
+            (directory / "report.json").write_text(json.dumps(report), encoding="utf-8")
             result = subprocess.run(
                 [sys.executable, str(ROOT / "scripts/validate_demo_d.py"), str(scratch),
                  "--output", str(directory / "replay.json")],
@@ -96,6 +101,54 @@ class DemoDTests(unittest.TestCase):
             )
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("Direct FMPy/ovfmi disagreement", result.stderr)
+
+    def test_bounded_drive_turn_reverses_in_live_physx(self):
+        report = json.loads(TURN_REPORT.read_text(encoding="utf-8"))
+        replay = json.loads(TURN_REPLAY.read_text(encoding="utf-8"))
+        self.assertEqual(report["status"], "passed")
+        self.assertEqual(report["steps"], 500)
+        self.assertEqual(report["motor_model"], "bounded_velocity_drive")
+        self.assertEqual(report["profile"], "turn")
+        self.assertEqual(report["environment"], "single_ground")
+        self.assertEqual(len(report["kinematic_cabinet_bodies_in_session"]), 6)
+        self.assertTrue(report["disabled_duplicate_room_floor_collision_in_session"])
+        self.assertLess(report["maximum_base_displacement_from_initial_m"], 0.30)
+        self.assertLess(report["terminal_max_abs_wheel_speed_rad_s"], 0.15)
+        self.assertLess(report["terminal_heading_drift_last_50_steps_rad"], 0.01)
+        self.assertLess(report["first_turn_yaw_change_rad"], -0.05)
+        self.assertGreater(report["second_turn_yaw_change_rad"], 0.05)
+        digest = hashlib.sha256(TURN_TRACE.read_bytes()).hexdigest()
+        self.assertEqual(report["trace_sha256"], digest)
+        self.assertEqual(replay["trace_sha256"], digest)
+        with tempfile.TemporaryDirectory(prefix="sero_demo_d_turn_test_") as directory:
+            result = subprocess.run(
+                [sys.executable, str(ROOT / "scripts/validate_demo_d.py"), str(TURN_TRACE),
+                 "--output", str(Path(directory) / "replay.json")],
+                cwd=ROOT, capture_output=True, text=True, check=False,
+            )
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_bounded_drive_replay_rejects_tampered_motor_target(self):
+        with tempfile.TemporaryDirectory(prefix="sero_demo_d_motor_tamper_") as directory:
+            directory = Path(directory)
+            with TURN_TRACE.open(newline="", encoding="utf-8") as stream:
+                rows = list(csv.DictReader(stream))
+            rows[100]["motor_target_rad_s"] = str(float(rows[100]["motor_target_rad_s"]) + 0.5)
+            scratch = directory / "trace.csv"
+            with scratch.open("w", newline="", encoding="utf-8") as stream:
+                writer = csv.DictWriter(stream, fieldnames=rows[0].keys())
+                writer.writeheader()
+                writer.writerows(rows)
+            report = json.loads(TURN_REPORT.read_text(encoding="utf-8"))
+            report["trace_sha256"] = hashlib.sha256(scratch.read_bytes()).hexdigest()
+            (directory / "report.json").write_text(json.dumps(report), encoding="utf-8")
+            result = subprocess.run(
+                [sys.executable, str(ROOT / "scripts/validate_demo_d.py"), str(scratch),
+                 "--output", str(directory / "replay.json")],
+                cwd=ROOT, capture_output=True, text=True, check=False,
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("motor equation is inconsistent", result.stderr)
 
 
 if __name__ == "__main__":
