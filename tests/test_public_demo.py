@@ -13,6 +13,7 @@ from pxr import Usd, UsdUtils
 
 from scripts.run_wheel_demo import ROOT, run as run_single
 from scripts.run_four_wheel_motion import run as run_four
+from scripts.validate_demo_b import validate as validate_b
 
 
 class PublicDemoTests(unittest.TestCase):
@@ -66,6 +67,26 @@ class PublicDemoTests(unittest.TestCase):
             report["path_validation"]["semantic_aabb_clearance_after_wheel_footprint_m"],
             0.5,
         )
+
+    def test_demo_b_scene_validation_and_tamper_detection(self):
+        report = validate_b()
+        published = json.loads(
+            (ROOT / "results/demo_B/validation/report.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(report, published)
+        self.assertEqual(report["checked_pose_samples"], 790)
+        self.assertEqual(report["max_position_error_m"], 0.0)
+        self.assertEqual(report["max_heading_error_rad"], 0.0)
+        self.assertEqual(report["fmu_instances"], 4)
+        self.assertEqual(report["mapped_signals_per_instance"], 4)
+        self.assertGreater(report["minimum_semantic_aabb_margin_m"], 0.1)
+        self.assertGreater(report["minimum_wall_aabb_margin_m"], 0.1)
+        with tempfile.TemporaryDirectory(prefix="sero_ovfmi_b_") as directory:
+            altered = Path(directory) / "trajectory.csv"
+            original = (ROOT / "results/drive/trajectory.csv").read_bytes()
+            altered.write_bytes(original.replace(b"0.01,0.0", b"0.01,1.0", 1))
+            with self.assertRaisesRegex(ValueError, "trace hash mismatch"):
+                validate_b(trace_path=altered)
 
     def test_timeline_demos_and_local_dependencies(self):
         stages = []

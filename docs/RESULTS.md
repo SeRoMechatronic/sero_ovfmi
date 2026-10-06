@@ -54,6 +54,20 @@ The nominal wheel radius `0.048671331 m`, track `0.172250003 m`, initial pose `(
 
 The [trajectory CSV](../results/drive/trajectory.csv) and [JSON report](../results/drive/report.json) contain commands, angles, speeds, pose, geometry assumptions, hashes, and limitations. The [animation builder](../scripts/build_timeline_scenes.py) writes 790 time-sampled robot translations/orientations (including time zero) into `scenes/robot_motion.usda`. Demos [A](../scenes/demo_A_robot_only.usda) and [B](../scenes/demo_B_synthetic_room.usda) compose that same layer. Isaac Sim 6.0.1 rendered [A](../results/demo_A/demo_A_robot_only.mp4) and [B](../results/demo_B/demo_B_synthetic_room.mp4); the respective render/video JSON manifests verify frame count, resolution, source-scene hash, and trace hash. This four-wheel trajectory is a different run from Demo A's single-wheel validation above. No physical robot or ROS system was connected.
 
+## Demo B: composed-scene numerical validation
+
+The [Demo B validator](../scripts/validate_demo_b.py) checks the **composed B stage** against all 789 rows of the shared four-FMU trajectory plus the initial pose, not just selected frames. It verifies 4 FMU instances and 4 explicit signal mappings per instance, local USD dependencies, trace/scene/video hashes, and 2D distances from every pose to the synthetic objects, wall boxes, and floor edge using a declared 0.25 m circular footprint. The [B-specific JSON report](../results/demo_B/validation/report.json) records the results. The reported ovfmi–FMPy wheel-output difference is imported from the **same shared four-FMU run** used by the A/B visual replay; it is not presented as a new or independent FMU experiment.
+
+| Demo B observation | Result |
+|---|---:|
+| Composed poses checked against the source CSV | 790 / 790 |
+| Maximum position / heading difference | `0 m` / `0 rad` |
+| Minimum semantic-object AABB margin after chosen footprint | `0.6541453419 m` |
+| Minimum wall AABB margin after chosen footprint | `0.76 m` |
+| Minimum floor-edge margin after chosen footprint | `0.8 m` |
+
+These are deterministic software and coarse axis-aligned geometry checks on an **original synthetic room**. They do not show that the scene matches a real room, that PhysX contact is correct, or that a physical robot can traverse the path safely. See the [Demo B guide](DEMO_B.md) for the evidence chain.
+
 ## What these measurements do not establish
 
 - They do not validate a real motor, battery, wheel radius, room geometry, localization estimate, obstacle avoidance, or Nav2 behavior.

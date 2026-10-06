@@ -10,10 +10,10 @@ Demo A now groups both deliverables under one name: the [single-wheel signal val
 
 ## Watch the two visual demos
 
-| Demo | Video | Animated OpenUSD stage |
-|---|---|---|
-| A — robot only | [MP4](results/demo_A/demo_A_robot_only.mp4) | [USD](scenes/demo_A_robot_only.usda) |
-| B — robot in a synthetic room | [MP4](results/demo_B/demo_B_synthetic_room.mp4) | [USD](scenes/demo_B_synthetic_room.usda) |
+| Demo | Video | Animated OpenUSD stage | Numerical validation |
+|---|---|---|---|
+| A — robot only | [MP4](results/demo_A/demo_A_robot_only.mp4) | [USD](scenes/demo_A_robot_only.usda) | [Single-wheel FMU mapping](docs/DEMO_A.md) |
+| B — robot in a synthetic room | [MP4](results/demo_B/demo_B_synthetic_room.mp4) | [USD](scenes/demo_B_synthetic_room.usda) | [Four-wheel trace + scene/geometry check](docs/DEMO_B.md) |
 
 Both USD stages contain the same **790 authored robot poses** over 7.89 s at 100 time codes/s. Open either in Isaac Sim and press **Play** in the Timeline. The videos are English-labelled H.264 renders (96 frames, 960×540, 12 fps). Motion is computed from four FMU wheel-angle outputs using a declared no-slip differential-drive assumption; Isaac Sim renders the resulting USD animation. It does **not** solve wheel contacts or prove physical-robot behavior. The synthetic wheel meshes do not spin.
 
@@ -30,8 +30,10 @@ The [two-video page](results/index.html) is convenient for local playback after 
 | Maximum four-wheel `ovfmi` vs direct FMPy output difference | `1.8920591244864227e-6` |
 | Repeat-run trajectory hash | identical in the tested environment |
 | Synthetic aisle travel / final heading error | `2.20149 m` / `-0.00605 rad` |
+| Demo B USD poses matched to four-wheel trace | 790 / 790; maximum position and heading errors `0` |
+| Demo B minimum synthetic object / wall / floor margins after chosen footprint | `0.6541 m` / `0.76 m` / `0.8 m` |
 
-The [Demo A one-wheel trace](results/demo_A/validation/trace.csv), [signal plot](results/demo_A/validation/trace.svg), [validation report](results/demo_A/validation/report.json), [four-wheel trajectory](results/drive/trajectory.csv), [four-wheel report](results/drive/report.json), and [methods/results note](docs/RESULTS.md) are included. The small `ovfmi`–FMPy differences are consistent with `ovfmi` 0.2 publishing ordinary outputs as float32, while the FMU declares Float64. These are numerical correctness comparisons, **not** a controlled performance benchmark.
+The [Demo A one-wheel trace](results/demo_A/validation/trace.csv), [signal plot](results/demo_A/validation/trace.svg), [validation report](results/demo_A/validation/report.json), [four-wheel trajectory](results/drive/trajectory.csv), [four-wheel report](results/drive/report.json), [Demo B scene-validation report](results/demo_B/validation/report.json), and [methods/results note](docs/RESULTS.md) are included. Demo B reuses the **same** four-FMU/FMPy comparison that generates both visual replays; its own additional check verifies every composed USD pose, signal mapping, and coarse synthetic room clearance. It is not a second independent FMU simulation. The small `ovfmi`–FMPy differences are consistent with `ovfmi` 0.2 publishing ordinary outputs as float32, while the FMU declares Float64. These are numerical correctness comparisons, **not** a controlled performance benchmark.
 
 The [first-step probe](results/first_step_probe.json) documents a version-specific negative finding: with `ovfmi==0.2.0`, changing an input in ovstage after attachment but before the first step did not affect that first step in this configuration. The main profiles initialize at 0 V and change later, so they do not hide that behavior.
 
@@ -48,6 +50,7 @@ python3.10 -m venv .venv
 .venv/bin/python scripts/probe_initial_input.py
 .venv/bin/python scripts/run_four_wheel_motion.py
 .venv/bin/python scripts/build_timeline_scenes.py
+.venv/bin/python scripts/validate_demo_b.py
 .venv/bin/python -m unittest discover -s tests -v
 ```
 

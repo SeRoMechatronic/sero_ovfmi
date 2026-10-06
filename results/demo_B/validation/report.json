@@ -1,0 +1,30 @@
+{
+  "status": "passed",
+  "scope": "Offline numerical consistency of Demo B's synthetic composed scene; not physical safety or contact simulation",
+  "scene": "scenes/demo_B_synthetic_room.usda",
+  "scene_sha256": "ad9201b0af13dbb6c633bb8bd4c82615fd1be5aa646a06cf07ef99aec1216145",
+  "motion_layer_sha256": "29c7264c8bdd99c65ac749ea5781625fa00a159c42937a416b5d99f70617a053",
+  "trajectory": "results/drive/trajectory.csv",
+  "trajectory_sha256": "0e37b35c5a0824aa10b4f1fa01a2644dee1e535b6e32177d504d3052be05e592",
+  "fmu_sha256": "5cdb7566ef9dcffbca455a31fad3588fde8063e535002ec8899454965d695f76",
+  "steps": 789,
+  "checked_pose_samples": 790,
+  "max_position_error_m": 0.0,
+  "max_heading_error_rad": 0.0,
+  "fmu_instances": 4,
+  "mapped_signals_per_instance": 4,
+  "shared_four_fmu_max_abs_ovfmi_vs_fmpy": 1.8920591244864227e-06,
+  "synthetic_footprint_radius_m": 0.25,
+  "minimum_semantic_aabb_margin_m": 0.6541453419490189,
+  "nearest_semantic_object": "table_right",
+  "minimum_wall_aabb_margin_m": 0.76,
+  "nearest_wall": "FrontWall",
+  "minimum_floor_edge_margin_m": 0.8,
+  "video_sha256": "303acf8e3dcbc5d73b1a60d4df8c0356bde86b87587cab5d1e5e5bcde5da3162",
+  "evidence_note": "The four-FMU/FMPy comparison and trajectory are shared with Demo A's visual replay; Demo B additionally checks its own USD pose and room geometry. No independent FMU run is claimed.",
+  "limitations": [
+    "Original synthetic room, not an observed or reconstructed physical room.",
+    "Circular 2D footprint and axis-aligned boxes are coarse software checks, not collision simulation.",
+    "USD timeline poses are offline kinematic replay; Isaac Sim rendering does not validate traction, Nav2, or real-world clearance."
+  ]
+}
