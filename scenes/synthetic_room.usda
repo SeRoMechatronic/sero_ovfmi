@@ -1,0 +1,92 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    upAxis = "Z"
+    subLayers = [@robot_only_base.usda@]
+    customLayerData = {
+        string provenance = "Original synthetic room; not an observed Molonbot environment"
+    }
+)
+
+over "World"
+{
+    def Xform "structure"
+    {
+        def Cube "Floor"
+        {
+            double size = 1
+            double3 xformOp:translate = (0, -1.2, -0.04)
+            double3 xformOp:scale = (4.5, 4.5, 0.08)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            color3f[] primvars:displayColor = [(0.67, 0.73, 0.79)]
+        }
+        def Cube "LeftWall"
+        {
+            double size = 1
+            double3 xformOp:translate = (-2.25, -1.2, 0.25)
+            double3 xformOp:scale = (0.08, 4.5, 0.5)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            color3f[] primvars:displayColor = [(0.22, 0.29, 0.37)]
+        }
+        def Cube "RightWall"
+        {
+            double size = 1
+            double3 xformOp:translate = (2.25, -1.2, 0.25)
+            double3 xformOp:scale = (0.08, 4.5, 0.5)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            color3f[] primvars:displayColor = [(0.22, 0.29, 0.37)]
+        }
+        def Cube "BackWall"
+        {
+            double size = 1
+            double3 xformOp:translate = (0, -3.45, 0.25)
+            double3 xformOp:scale = (4.5, 0.08, 0.5)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            color3f[] primvars:displayColor = [(0.22, 0.29, 0.37)]
+        }
+        def Cube "FrontWall"
+        {
+            double size = 1
+            double3 xformOp:translate = (0, 1.05, 0.25)
+            double3 xformOp:scale = (4.5, 0.08, 0.5)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            color3f[] primvars:displayColor = [(0.22, 0.29, 0.37)]
+        }
+    }
+    def Xform "gemelo_semantico"
+    {
+        def Cube "table_left"
+        {
+            double size = 1
+            double3 xformOp:translate = (-1.25, -1.55, 0.35)
+            double3 xformOp:scale = (0.65, 0.65, 0.70)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            color3f[] primvars:displayColor = [(0.72, 0.49, 0.27)]
+        }
+        def Cube "table_right"
+        {
+            double size = 1
+            double3 xformOp:translate = (1.25, -1.55, 0.35)
+            double3 xformOp:scale = (0.65, 0.65, 0.70)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            color3f[] primvars:displayColor = [(0.72, 0.49, 0.27)]
+        }
+        def Cube "chair_left"
+        {
+            double size = 1
+            double3 xformOp:translate = (-1.32, -2.35, 0.22)
+            double3 xformOp:scale = (0.38, 0.38, 0.44)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            color3f[] primvars:displayColor = [(0.25, 0.34, 0.52)]
+        }
+        def Cube "chair_right"
+        {
+            double size = 1
+            double3 xformOp:translate = (1.32, -2.35, 0.22)
+            double3 xformOp:scale = (0.38, 0.38, 0.44)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            color3f[] primvars:displayColor = [(0.25, 0.34, 0.52)]
+        }
+    }
+}

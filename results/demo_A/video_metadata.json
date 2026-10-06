@@ -1,0 +1,15 @@
+{
+  "demo": "A",
+  "video": "demo_A_robot_only.mp4",
+  "sha256": "708f4ed8b732bab48a186e31e1f092b6fc0997e4b70576fa30f2fff771173cca",
+  "scene": "scenes/demo_A_robot_only.usda",
+  "scene_sha256": "9b97c6390385fd2f9da796179ba3748d76934bb748a533b38a6134ed60284cd3",
+  "trace_sha256": "0e37b35c5a0824aa10b4f1fa01a2644dee1e535b6e32177d504d3052be05e592",
+  "fps": 12,
+  "frames": 96,
+  "width": 960,
+  "height": 540,
+  "duration_s": 7.89,
+  "codec": "H.264",
+  "scope": "Offline kinematic replay; no robot hardware or contact physics"
+}

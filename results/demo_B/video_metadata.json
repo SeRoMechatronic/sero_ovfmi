@@ -1,0 +1,15 @@
+{
+  "demo": "B",
+  "video": "demo_B_synthetic_room.mp4",
+  "sha256": "303acf8e3dcbc5d73b1a60d4df8c0356bde86b87587cab5d1e5e5bcde5da3162",
+  "scene": "scenes/demo_B_synthetic_room.usda",
+  "scene_sha256": "ad9201b0af13dbb6c633bb8bd4c82615fd1be5aa646a06cf07ef99aec1216145",
+  "trace_sha256": "0e37b35c5a0824aa10b4f1fa01a2644dee1e535b6e32177d504d3052be05e592",
+  "fps": 12,
+  "frames": 96,
+  "width": 960,
+  "height": 540,
+  "duration_s": 7.89,
+  "codec": "H.264",
+  "scope": "Offline kinematic replay; no robot hardware or contact physics"
+}

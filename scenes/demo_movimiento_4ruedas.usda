@@ -1,0 +1,201 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    upAxis = "Z"
+    subLayers = [@synthetic_room.usda@]
+    customLayerData = {
+        string purpose = "Offline four-FMU wheel replay; no physical robot actuation"
+        string provenance = "Original synthetic USD geometry plus four independent openSeRo wheel FMUs"
+    }
+)
+
+over "World"
+{
+    def Xform "DriveStates"
+    {
+        def Xform "FL"
+        {
+            float molonbot:voltage_cmd_V = 0
+            float molonbot:voltage_applied_V = 0
+            float molonbot:omega_rad_s = 0
+            float molonbot:theta_rad = 0
+        }
+        def Xform "FR"
+        {
+            float molonbot:voltage_cmd_V = 0
+            float molonbot:voltage_applied_V = 0
+            float molonbot:omega_rad_s = 0
+            float molonbot:theta_rad = 0
+        }
+        def Xform "BL"
+        {
+            float molonbot:voltage_cmd_V = 0
+            float molonbot:voltage_applied_V = 0
+            float molonbot:omega_rad_s = 0
+            float molonbot:theta_rad = 0
+        }
+        def Xform "BR"
+        {
+            float molonbot:voltage_cmd_V = 0
+            float molonbot:voltage_applied_V = 0
+            float molonbot:omega_rad_s = 0
+            float molonbot:theta_rad = 0
+        }
+    }
+
+    def Xform "DrivePlants"
+    {
+        def FmuInstance "FL"
+        {
+            asset fmi:fmu = @../fmus/MolonbotWheelPlant.fmu@
+            bool fmi:enabled = true
+            def FmuConnection "Signals"
+            {
+                rel fmi:targets = </World/DriveStates/FL>
+                def FmuMapping "Command"
+                {
+                    string fmi:fmuAttribute = "voltage_cmd_V"
+                    string fmi:usdAttribute = "molonbot:voltage_cmd_V"
+                    token fmi:direction = "input"
+                    int2 fmi:usdMapping = (0, 1)
+                }
+                def FmuMapping "Applied"
+                {
+                    string fmi:fmuAttribute = "voltage_applied_V"
+                    string fmi:usdAttribute = "molonbot:voltage_applied_V"
+                    token fmi:direction = "output"
+                    int2 fmi:usdMapping = (0, 1)
+                }
+                def FmuMapping "Omega"
+                {
+                    string fmi:fmuAttribute = "omega_rad_s"
+                    string fmi:usdAttribute = "molonbot:omega_rad_s"
+                    token fmi:direction = "output"
+                    int2 fmi:usdMapping = (0, 1)
+                }
+                def FmuMapping "Theta"
+                {
+                    string fmi:fmuAttribute = "theta_rad"
+                    string fmi:usdAttribute = "molonbot:theta_rad"
+                    token fmi:direction = "output"
+                    int2 fmi:usdMapping = (0, 1)
+                }
+            }
+        }
+
+        def FmuInstance "FR"
+        {
+            asset fmi:fmu = @../fmus/MolonbotWheelPlant.fmu@
+            bool fmi:enabled = true
+            def FmuConnection "Signals"
+            {
+                rel fmi:targets = </World/DriveStates/FR>
+                def FmuMapping "Command"
+                {
+                    string fmi:fmuAttribute = "voltage_cmd_V"
+                    string fmi:usdAttribute = "molonbot:voltage_cmd_V"
+                    token fmi:direction = "input"
+                    int2 fmi:usdMapping = (0, 1)
+                }
+                def FmuMapping "Applied"
+                {
+                    string fmi:fmuAttribute = "voltage_applied_V"
+                    string fmi:usdAttribute = "molonbot:voltage_applied_V"
+                    token fmi:direction = "output"
+                    int2 fmi:usdMapping = (0, 1)
+                }
+                def FmuMapping "Omega"
+                {
+                    string fmi:fmuAttribute = "omega_rad_s"
+                    string fmi:usdAttribute = "molonbot:omega_rad_s"
+                    token fmi:direction = "output"
+                    int2 fmi:usdMapping = (0, 1)
+                }
+                def FmuMapping "Theta"
+                {
+                    string fmi:fmuAttribute = "theta_rad"
+                    string fmi:usdAttribute = "molonbot:theta_rad"
+                    token fmi:direction = "output"
+                    int2 fmi:usdMapping = (0, 1)
+                }
+            }
+        }
+
+        def FmuInstance "BL"
+        {
+            asset fmi:fmu = @../fmus/MolonbotWheelPlant.fmu@
+            bool fmi:enabled = true
+            def FmuConnection "Signals"
+            {
+                rel fmi:targets = </World/DriveStates/BL>
+                def FmuMapping "Command"
+                {
+                    string fmi:fmuAttribute = "voltage_cmd_V"
+                    string fmi:usdAttribute = "molonbot:voltage_cmd_V"
+                    token fmi:direction = "input"
+                    int2 fmi:usdMapping = (0, 1)
+                }
+                def FmuMapping "Applied"
+                {
+                    string fmi:fmuAttribute = "voltage_applied_V"
+                    string fmi:usdAttribute = "molonbot:voltage_applied_V"
+                    token fmi:direction = "output"
+                    int2 fmi:usdMapping = (0, 1)
+                }
+                def FmuMapping "Omega"
+                {
+                    string fmi:fmuAttribute = "omega_rad_s"
+                    string fmi:usdAttribute = "molonbot:omega_rad_s"
+                    token fmi:direction = "output"
+                    int2 fmi:usdMapping = (0, 1)
+                }
+                def FmuMapping "Theta"
+                {
+                    string fmi:fmuAttribute = "theta_rad"
+                    string fmi:usdAttribute = "molonbot:theta_rad"
+                    token fmi:direction = "output"
+                    int2 fmi:usdMapping = (0, 1)
+                }
+            }
+        }
+
+        def FmuInstance "BR"
+        {
+            asset fmi:fmu = @../fmus/MolonbotWheelPlant.fmu@
+            bool fmi:enabled = true
+            def FmuConnection "Signals"
+            {
+                rel fmi:targets = </World/DriveStates/BR>
+                def FmuMapping "Command"
+                {
+                    string fmi:fmuAttribute = "voltage_cmd_V"
+                    string fmi:usdAttribute = "molonbot:voltage_cmd_V"
+                    token fmi:direction = "input"
+                    int2 fmi:usdMapping = (0, 1)
+                }
+                def FmuMapping "Applied"
+                {
+                    string fmi:fmuAttribute = "voltage_applied_V"
+                    string fmi:usdAttribute = "molonbot:voltage_applied_V"
+                    token fmi:direction = "output"
+                    int2 fmi:usdMapping = (0, 1)
+                }
+                def FmuMapping "Omega"
+                {
+                    string fmi:fmuAttribute = "omega_rad_s"
+                    string fmi:usdAttribute = "molonbot:omega_rad_s"
+                    token fmi:direction = "output"
+                    int2 fmi:usdMapping = (0, 1)
+                }
+                def FmuMapping "Theta"
+                {
+                    string fmi:fmuAttribute = "theta_rad"
+                    string fmi:usdAttribute = "molonbot:theta_rad"
+                    token fmi:direction = "output"
+                    int2 fmi:usdMapping = (0, 1)
+                }
+            }
+        }
+    }
+}

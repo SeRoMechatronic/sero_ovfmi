@@ -1,0 +1,28 @@
+{
+  "status": "passed",
+  "scope": "offline; synthetic voltage command; no physical robot control",
+  "scene": "scenes/demo_a_wheel.usda",
+  "scene_sha256": "22feb7f68cfe8323e0d15f44449be3077d471052f209ce9775302e92131ca34d",
+  "fmu": "fmus/MolonbotWheelPlant.fmu",
+  "fmu_sha256": "5cdb7566ef9dcffbca455a31fad3588fde8063e535002ec8899454965d695f76",
+  "versions": {
+    "ovfmi": "0.2.0",
+    "ovstage": "0.2.0.377349",
+    "fmpy": "0.3.25"
+  },
+  "steps": 500,
+  "step_s": 0.01,
+  "trace_sha256": "00afc3189fc92b7a6a4562146d9ba8a08470897ffe0fad4d13ae5d9286612ede",
+  "max_abs_ovfmi_vs_fmpy": 9.484643150869942e-07,
+  "max_abs_ovstage_vs_ovfmi": 0.0,
+  "max_abs_fmpy_vs_analytic": 0.0,
+  "max_abs_applied_vs_command_V": 0.0,
+  "omega_0_75_fmpy_rad_s": 7.585446705942695,
+  "omega_3_25_fmpy_rad_s": 4.414352873647819,
+  "attach_ms": 134.180208,
+  "step_sync_median_ms": 0.064561,
+  "step_sync_p95_ms": 0.0936,
+  "fmpy_dostep_median_ms": 0.00116,
+  "fmpy_dostep_p95_ms": 0.00126,
+  "timing_note": "Exploratory wall time in one process; not a controlled benchmark."
+}

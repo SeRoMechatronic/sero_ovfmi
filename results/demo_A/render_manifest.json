@@ -1,0 +1,17 @@
+{
+  "demo": "A",
+  "status": "complete",
+  "scene": "scenes/demo_A_robot_only.usda",
+  "scene_sha256": "9b97c6390385fd2f9da796179ba3748d76934bb748a533b38a6134ed60284cd3",
+  "motion_layer_sha256": "29c7264c8bdd99c65ac749ea5781625fa00a159c42937a416b5d99f70617a053",
+  "trace_sha256": "0e37b35c5a0824aa10b4f1fa01a2644dee1e535b6e32177d504d3052be05e592",
+  "frame_stream_sha256": "45a218d6763ff3864e8120fe1a20c378d414eba3ed009e809ea8d75c36bd3607",
+  "frames": 96,
+  "fps": 12,
+  "duration_s": 7.89,
+  "width": 960,
+  "height": 540,
+  "scope": "Isaac Sim render of offline, time-sampled FMU-derived USD robot animation",
+  "rigid_bodies_disabled_for_replay": 0,
+  "joints_disabled_for_replay": 0
+}

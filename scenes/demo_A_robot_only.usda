@@ -1,0 +1,15 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    upAxis = "Z"
+    timeCodesPerSecond = 100
+    framesPerSecond = 100
+    startTimeCode = 0
+    endTimeCode = 789
+    subLayers = [@robot_motion.usda@, @robot_only_base.usda@]
+    customLayerData = {
+        string purpose = "Public Demo A: robot-only FMU-derived kinematic animation"
+        string provenance = "Original synthetic geometry and the included openSeRo wheel FMU"
+    }
+)

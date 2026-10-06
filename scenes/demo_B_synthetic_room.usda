@@ -1,0 +1,15 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    upAxis = "Z"
+    timeCodesPerSecond = 100
+    framesPerSecond = 100
+    startTimeCode = 0
+    endTimeCode = 789
+    subLayers = [@robot_motion.usda@, @demo_movimiento_4ruedas.usda@]
+    customLayerData = {
+        string purpose = "Public Demo B: FMU-derived robot animation in an original synthetic room"
+        string provenance = "No Molonbot snapshot or third-party meshes are included"
+    }
+)

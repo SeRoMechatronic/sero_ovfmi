@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SeRo × ovfmi — reproducible visual demos</title>
+  <style>
+    :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #0d1520; color: #edf5ff; }
+    body { margin: 0 auto; max-width: 1180px; padding: 24px; }
+    h1 { margin-bottom: 4px; }
+    p { color: #c0cedc; line-height: 1.55; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(370px, 1fr)); gap: 20px; }
+    article { background: #172536; border: 1px solid #344b61; border-radius: 14px; padding: 16px; }
+    article h2 { margin: 0 0 12px; }
+    video { width: 100%; display: block; border-radius: 8px; background: #000; }
+    a { color: #83d9ff; }
+    small { color: #b4c6d8; }
+  </style>
+</head>
+<body>
+  <h1>SeRo × ovfmi</h1>
+  <p>Two Isaac Sim recordings of the same time-sampled, four-FMU robot motion. The room and robot visuals are original synthetic OpenUSD primitives; the included FMI 3.0 wheel FMU was made with openSeRo.</p>
+  <div class="grid">
+    <article>
+      <h2>Demo A — robot only</h2>
+      <video src="demo_A/demo_A_robot_only.mp4" poster="demo_A/preview.jpg" controls preload="metadata" playsinline></video>
+      <p><a href="demo_A/demo_A_robot_only.mp4">MP4</a> · <a href="../scenes/demo_A_robot_only.usda">animated USD</a> · <a href="demo_A/video_metadata.json">metadata</a></p>
+    </article>
+    <article>
+      <h2>Demo B — synthetic room</h2>
+      <video src="demo_B/demo_B_synthetic_room.mp4" poster="demo_B/preview.jpg" controls preload="metadata" playsinline></video>
+      <p><a href="demo_B/demo_B_synthetic_room.mp4">MP4</a> · <a href="../scenes/demo_B_synthetic_room.usda">animated USD</a> · <a href="demo_B/video_metadata.json">metadata</a></p>
+    </article>
+  </div>
+  <p><small>7.89 s, 789 FMI 3.0 Co-Simulation steps, four independent wheel-FMU instances. Offline kinematic replay only: no real robot, contact physics, live reconstruction, or obstacle-avoidance claim.</small></p>
+  <p><a href="../docs/RESULTS.md">Methods and measured results</a> · <a href="drive/trajectory.csv">Source trajectory CSV</a> · <a href="../docs/DEMO_C_FMU_SPEC.md">Proposed closed-loop Demo C</a></p>
+</body>
+</html>

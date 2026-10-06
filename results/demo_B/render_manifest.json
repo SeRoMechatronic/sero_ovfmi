@@ -1,0 +1,17 @@
+{
+  "demo": "B",
+  "status": "complete",
+  "scene": "scenes/demo_B_synthetic_room.usda",
+  "scene_sha256": "ad9201b0af13dbb6c633bb8bd4c82615fd1be5aa646a06cf07ef99aec1216145",
+  "motion_layer_sha256": "29c7264c8bdd99c65ac749ea5781625fa00a159c42937a416b5d99f70617a053",
+  "trace_sha256": "0e37b35c5a0824aa10b4f1fa01a2644dee1e535b6e32177d504d3052be05e592",
+  "frame_stream_sha256": "362dff75e094133a0c7880b009b1cd953b9425ed93da377f3c4e372804b653f9",
+  "frames": 96,
+  "fps": 12,
+  "duration_s": 7.89,
+  "width": 960,
+  "height": 540,
+  "scope": "Isaac Sim render of offline, time-sampled FMU-derived USD robot animation",
+  "rigid_bodies_disabled_for_replay": 0,
+  "joints_disabled_for_replay": 0
+}

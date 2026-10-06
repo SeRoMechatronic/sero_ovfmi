@@ -1,0 +1,77 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    upAxis = "Z"
+    customLayerData = {
+        string provenance = "Original procedural geometry for a public ovfmi demonstration"
+        string safety = "Synthetic visualization; not a calibrated or live robot model"
+    }
+)
+
+def Xform "World"
+{
+    def Xform "jetauto"
+    {
+        double3 xformOp:translate = (0, 0, 0)
+        quatd xformOp:orient = (1, 0, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient"]
+
+        def Cube "Body"
+        {
+            double size = 1
+            double3 xformOp:translate = (0, 0, 0.16)
+            double3 xformOp:scale = (0.34, 0.25, 0.14)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            color3f[] primvars:displayColor = [(0.12, 0.67, 0.53)]
+        }
+        def Cube "FrontMarker"
+        {
+            double size = 1
+            double3 xformOp:translate = (0.17, 0, 0.24)
+            double3 xformOp:scale = (0.035, 0.13, 0.025)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            color3f[] primvars:displayColor = [(1, 0.82, 0.18)]
+        }
+        def Cube "Sensor"
+        {
+            double size = 1
+            double3 xformOp:translate = (0.055, 0, 0.29)
+            double3 xformOp:scale = (0.10, 0.10, 0.06)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            color3f[] primvars:displayColor = [(0.07, 0.13, 0.19)]
+        }
+        def Cube "FL"
+        {
+            double size = 1
+            double3 xformOp:translate = (0.12, 0.145, 0.075)
+            double3 xformOp:scale = (0.11, 0.07, 0.15)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            color3f[] primvars:displayColor = [(0.045, 0.055, 0.07)]
+        }
+        def Cube "FR"
+        {
+            double size = 1
+            double3 xformOp:translate = (0.12, -0.145, 0.075)
+            double3 xformOp:scale = (0.11, 0.07, 0.15)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            color3f[] primvars:displayColor = [(0.045, 0.055, 0.07)]
+        }
+        def Cube "BL"
+        {
+            double size = 1
+            double3 xformOp:translate = (-0.12, 0.145, 0.075)
+            double3 xformOp:scale = (0.11, 0.07, 0.15)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            color3f[] primvars:displayColor = [(0.045, 0.055, 0.07)]
+        }
+        def Cube "BR"
+        {
+            double size = 1
+            double3 xformOp:translate = (-0.12, -0.145, 0.075)
+            double3 xformOp:scale = (0.11, 0.07, 0.15)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            color3f[] primvars:displayColor = [(0.045, 0.055, 0.07)]
+        }
+    }
+}
