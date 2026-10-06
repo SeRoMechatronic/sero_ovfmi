@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>SeRo × ovfmi — three reproducible visual demos</title>
+  <title>SeRo × ovfmi — four visual demos</title>
   <style>
     :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #0d1520; color: #edf5ff; }
     body { margin: 0 auto; max-width: 1180px; padding: 24px; }
@@ -19,7 +19,7 @@
 </head>
 <body>
   <h1>SeRo × ovfmi</h1>
-  <p>Three Isaac Sim recordings: Demos A and B replay the same time-sampled four-FMU robot motion, while Demo C visualizes a separate closed loop with an openSeRo PI controller FMU and wheel-plant FMU. All visuals are original synthetic OpenUSD primitives.</p>
+  <p>Four Isaac Sim recordings: Demos A and B replay time-sampled four-FMU robot motion, Demo C visualizes a separate PI-controller/wheel-plant FMU loop, and Demo D captures live PhysX wheel control by four openSeRo PI FMUs. A/B/C are offline visualizations; D is a live physics run.</p>
   <div class="grid">
     <article>
       <h2>Demo A — FMU validation + robot-only replay</h2>
@@ -39,8 +39,14 @@
       <p><a href="demo_C/demo_C_closed_loop.mp4">MP4</a> · <a href="../scenes/demo_C_wheel_visual.usda">animated USD</a> · <a href="demo_C/video_metadata.json">video metadata</a></p>
       <p>Two mapped FMUs, 1,000 steps at 10 ms: <a href="demo_C/trace.csv">per-step CSV</a> · <a href="demo_C/trace.svg">signal plot</a> · <a href="demo_C/report.json">numerical report</a> · <a href="../docs/DEMO_C.md">methods and openSeRo model gallery</a>.</p>
     </article>
+    <article>
+      <h2>Demo D — live FMI feedback in PhysX</h2>
+      <video src="demo_D_turn/live_physx.mp4" controls preload="metadata" playsinline></video>
+      <p><a href="demo_D_turn/live_physx.mp4">MP4</a> · <a href="demo_D_turn/trace.csv">matching 500-step trace</a> · <a href="demo_D_turn/video_capture_report.json">capture report and hashes</a> · <a href="demo_D_turn/replay_validation.json">independent FMPy replay</a></p>
+      <p>Four PI-controller FMUs receive measured wheel speeds; a synthetic bounded drive actuates four PhysX joints. The video was captured during a separate run whose CSV is byte-identical to the published trace. No physical robot or calibrated motor model is involved. <a href="../docs/DEMO_D.md">Methods and limitations</a>.</p>
+    </article>
   </div>
-  <p><small>A/B: 7.89 s, 789 FMI 3.0 Co-Simulation steps, four independent wheel-FMU instances. C: 10 s, 1,000 steps, one PI controller and one wheel plant. Offline data replay only: no real robot, contact physics, live reconstruction, or obstacle-avoidance claim.</small></p>
+  <p><small>A/B: 7.89 s, 789 FMI 3.0 Co-Simulation steps, four independent wheel-FMU instances. C: 10 s, 1,000 steps, one PI controller and one wheel plant. D: 5 s, 500 FMI/PhysX steps, four controllers in live feedback and four shadow plant FMUs. No real-robot, live-reconstruction, or obstacle-avoidance claim.</small></p>
   <p><a href="../docs/RESULTS.md">Methods and measured results</a> · <a href="../docs/DEMO_C_FMU_SPEC.md">Original Demo C FMU contract</a></p>
 </body>
 </html>

@@ -1,0 +1,72 @@
+{
+  "status": "passed",
+  "scope": "live FMU-controlled Isaac/PhysX simulation; no ROS or physical robot",
+  "profile": "turn",
+  "environment": "single_ground",
+  "motor_model": "bounded_velocity_drive",
+  "steps": 500,
+  "h_s": 0.01,
+  "uncommanded_settle_steps": 0,
+  "fmu_instances": 8,
+  "controllers_in_feedback": 4,
+  "plant_fmus_role": "shadow prediction only; PhysX is the controlled plant",
+  "communication_delay_steps": 1,
+  "live_rendered_frames": 48,
+  "live_video_sha256": "8d937eb4d07162ced3e88d99d5e597b8830f94a0a23488e22facb9388636d148",
+  "scene_sha256": "88fa4817227250d927f7c9588d83a30c45765f480ade1d9b9e12fa230829baae",
+  "fmi_contract_sha256": "f230191ed3ba7f4fdeb24cee30425ca8318a97be2f72495cc1ce755e32bbf763",
+  "controller_fmu_sha256": "5b61db8b91e1618539984222841e2b8c986f5cb9812698c5cd1bc3a3720bdafd",
+  "plant_fmu_sha256": "5cdb7566ef9dcffbca455a31fad3588fde8063e535002ec8899454965d695f76",
+  "trace_sha256": "2d14ddd9e09ca3ddc5f0b773ca8ecca4717e7906c77ffc1f94c3a9492eded6f9",
+  "disabled_ros_graphs_in_session": [
+    "/World/action_graphs"
+  ],
+  "disabled_room_prims_in_session": [],
+  "disabled_duplicate_room_floor_collision_in_session": true,
+  "kinematic_cabinet_bodies_in_session": [
+    "/World/gemelo_semantico/cabinet_1/Asset/modelo/modelo/Geometry/door_01_obj_00",
+    "/World/gemelo_semantico/cabinet_1/Asset/modelo/modelo/Geometry/body_01_obj_00",
+    "/World/gemelo_semantico/cabinet_1/Asset/modelo/modelo/Geometry/door_02_obj_00",
+    "/World/gemelo_semantico/cabinet_2/Asset/modelo/modelo/Geometry/door_01_obj_00",
+    "/World/gemelo_semantico/cabinet_2/Asset/modelo/modelo/Geometry/body_01_obj_00",
+    "/World/gemelo_semantico/cabinet_2/Asset/modelo/modelo/Geometry/door_02_obj_00"
+  ],
+  "joint_names": [
+    "wheel_left_front_joint",
+    "wheel_right_front_joint",
+    "wheel_left_back_joint",
+    "wheel_right_back_joint"
+  ],
+  "joint_indices": [
+    2,
+    4,
+    1,
+    3
+  ],
+  "synthetic_motor": {
+    "speed_per_volt_rad_s_per_V": 1.0,
+    "velocity_drive_damping_Nm_s_per_rad": 1.0,
+    "effort_limit_Nm": 0.5,
+    "equation": "target_speed = clip(speed_per_volt * previous_controller_voltage, +/-12 rad/s); PhysX implicit velocity drive with bounded effort"
+  },
+  "base_displacement_from_initial_m": 0.03612493872750421,
+  "maximum_base_displacement_from_initial_m": 0.03612493872750421,
+  "maximum_abs_measured_wheel_speed_rad_s": 4.990655422210693,
+  "maximum_wheel_speed_spread_rad_s": 7.035316228866577,
+  "maximum_abs_base_yaw_change_rad": 0.26161093042409167,
+  "maximum_abs_controller_voltage_V": 3.3457448482513428,
+  "maximum_abs_measured_joint_effort_Nm": 0.5023183822631836,
+  "terminal_max_abs_wheel_speed_rad_s": 0.07189248502254486,
+  "terminal_heading_drift_last_50_steps_rad": 0.0029530964667980886,
+  "first_turn_yaw_change_rad": -0.19956595308560077,
+  "second_turn_yaw_change_rad": 0.10494306553967236,
+  "minimum_turn_directional_peak_rad_s": 2.251018762588501,
+  "all_wheels_reversed_measured_rotation": true,
+  "limitations": [
+    "Motor constants and wheel/ground friction are simulation assumptions, not physical calibration.",
+    "The bounded velocity drive is a PhysX inner servo, not a voltage-to-torque DC motor model.",
+    "The local Molonbot USD is not included in the public repository.",
+    "The four shadow plant FMUs do not actuate PhysX.",
+    "No real-time wall-clock guarantee, hardware control, or mecanum lateral-motion validation is claimed."
+  ]
+}

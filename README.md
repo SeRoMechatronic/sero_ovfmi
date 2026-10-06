@@ -2,7 +2,7 @@
 
 This repository is a small, public, MIT-licensed experiment showing **actual `ovfmi` use**, not just a rendered digital twin. Wheel-plant and PI-controller FMUs made with **openSeRo** are declared in USD, discovered by `FmiHost`, advanced through `ovfmi`, and read back through `ovstage`. Every step is checked against an independent direct-FMPy run. The results include numerical/visual Demos A and B, a two-FMU closed-loop Demo C, and a live Isaac Sim/PhysX wheel-control experiment (Demo D).
 
-The geometry is **original and synthetic**. No Molonbot robot mesh, observed room snapshot, private email, personal imagery, ROS bag, or third-party NVIDIA asset is included. The FMU is a didactic first-order model, not a calibrated physical motor. Nothing here commands a real robot.
+The published USD geometry in Demos A–C is **original and synthetic**. Demo D includes a live-rendered video of the local Molonbot robot, but not its robot mesh, observed room USD, private email, ROS bag, or third-party NVIDIA asset files. The FMU is a didactic first-order model, not a calibrated physical motor. Nothing here commands a real robot.
 
 ## Authored in openSeRo / SeRo_MBE
 
@@ -16,17 +16,18 @@ The [plant modeling gallery](docs/OPENSERO_MODELING.md) and [controller modeling
 
 Demo A now groups both deliverables under one name: the [single-wheel signal validation](results/demo_A/validation/report.json) and the robot-only Isaac Sim video below. These are **complementary but separate runs**: the 500-step single-wheel test checks the USD/ovfmi/FMU signal route against FMPy, while the 789-step four-wheel run generates the trajectory used by the video. The single-wheel trace is not a direct measurement of the animated four-wheel run. See the [Demo A guide](docs/DEMO_A.md) for the exact relationship and files.
 
-## Watch the three visual demos
+## Watch the four visual demos
 
-| Demo | Video | Animated OpenUSD stage | Numerical validation |
+| Demo | Video | USD artifact | Numerical validation |
 |---|---|---|---|
 | A — robot only | [MP4](results/demo_A/demo_A_robot_only.mp4) | [USD](scenes/demo_A_robot_only.usda) | [Single-wheel FMU mapping](docs/DEMO_A.md) |
 | B — robot in a synthetic room | [MP4](results/demo_B/demo_B_synthetic_room.mp4) | [USD](scenes/demo_B_synthetic_room.usda) | [Four-wheel trace + scene/geometry check](docs/DEMO_B.md) |
 | C — PI controller + wheel plant | [MP4](results/demo_C/demo_C_closed_loop.mp4) | [USD](scenes/demo_C_wheel_visual.usda) | [1,000-step two-FMU closed loop](docs/DEMO_C.md) |
+| D — live PhysX wheel control | [MP4](results/demo_D_turn/live_physx.mp4) | [FMI signal contract](scenes/demo_D_live_fmi_contract.usda); local robot USD not included | [500-step turn trace and capture report](docs/DEMO_D.md) |
 
-Demos A and B contain the same **790 authored robot poses** over 7.89 s at 100 time codes/s. Their videos are English-labelled H.264 renders (96 frames, 960×540, 12 fps). Motion is computed from four FMU wheel-angle outputs using a declared no-slip differential-drive assumption. Demo C instead shows a wheel-angle indicator and two signal bars for a 10-second closed-loop trace (61 rendered frames). In A/B/C, Isaac Sim replays authored USD data; those videos do **not** solve wheel contacts. Demo D is different: FMU commands actuate four PhysX joints during the run, and measured wheel speed is fed back to the FMUs. No demo proves physical-robot behavior.
+Demos A and B contain the same **790 authored robot poses** over 7.89 s at 100 time codes/s. Their videos are English-labelled H.264 renders (96 frames, 960×540, 12 fps). Motion is computed from four FMU wheel-angle outputs using a declared no-slip differential-drive assumption. Demo C instead shows a wheel-angle indicator and two signal bars for a 10-second closed-loop trace (61 rendered frames). In A/B/C, Isaac Sim replays authored USD data; those videos do **not** solve wheel contacts. Demo D is different: FMU commands actuate four PhysX joints during the run, and measured wheel speed is fed back to the FMUs. The 48-frame live-capture MP4 comes from a capture run whose `trace.csv` is byte-identical to the published Demo D turn trace; the [capture report](results/demo_D_turn/video_capture_report.json) records both SHA-256 hashes. No demo proves physical-robot behavior.
 
-The [three-video page](results/index.html) is convenient for local playback after cloning.
+The [four-video page](results/index.html) is convenient for local playback after cloning.
 
 ## Numerical evidence
 
@@ -47,6 +48,8 @@ The [three-video page](results/index.html) is convenient for local playback afte
 | Demo D live PhysX steps / four-wheel samples | `320` / `1,280` |
 | Demo D maximum ovfmi vs independent FMPy replay difference | `2.384185791015625e-7` |
 | Demo D single-ground room-run maximum wheel speed / excursion from start | `2.934 rad/s` / `0.152 m` |
+| Demo D bounded-drive opposite-turn run / live-captured frames | `500` steps / `48` frames |
+| Demo D turn-run maximum ovfmi vs independent FMPy replay difference | `2.384185791015625e-7` |
 
 The [Demo A one-wheel trace](results/demo_A/validation/trace.csv), [four-wheel trajectory](results/drive/trajectory.csv), [Demo B scene-validation report](results/demo_B/validation/report.json), [Demo C closed-loop trace and plot](docs/DEMO_C.md), and [methods/results note](docs/RESULTS.md) are included. Demo B reuses the **same** four-FMU/FMPy comparison that generates both A/B visual replays; Demo C is a new two-FMU simulation. The small `ovfmi`–FMPy differences are consistent with `ovfmi` 0.2 publishing ordinary outputs as float32, while the FMUs declare Float64. These are numerical correctness comparisons, **not** a controlled performance benchmark.
 
@@ -97,8 +100,8 @@ The new FMI 3.0 Co-Simulation [PI-controller FMU](fmus/MolonbotWheelPIController
 
 ## Demo D: live Isaac Sim/PhysX feedback
 
-Four PI-controller FMU instances command simulated wheel joints while Isaac Sim/PhysX measures all four wheel speeds every 10 ms. Four wheel-plant FMUs are separate shadow predictions, not the controlled physics plant. The original, **uncalibrated** voltage-to-torque adapter passed forward/reverse but failed turn-in-place. A second, explicitly synthetic bounded velocity-drive adapter passed both forward/reverse and [opposite turn-in-place phases](results/demo_D_turn/report.json) with the semantic room loaded after two session-only scene stabilizations: disable a duplicate floor collider and hold six unanchored cabinet bodies kinematic. Its [trace](results/demo_D_turn/trace.csv), [English signal plot](results/demo_D_turn/turn.svg), and [independent FMPy replay](results/demo_D_turn/replay_validation.json) are public. The [Demo D guide](docs/DEMO_D.md) explains the process boundary, controlled ablations, numbers, and limitations. The local articulated robot/room assets and live videos containing their imagery are not included in this repository. Nothing was sent to physical hardware; the adapter is not a calibrated motor model or a navigation controller.
+Four PI-controller FMU instances command simulated wheel joints while Isaac Sim/PhysX measures all four wheel speeds every 10 ms. Four wheel-plant FMUs are separate shadow predictions, not the controlled physics plant. The original, **uncalibrated** voltage-to-torque adapter passed forward/reverse but failed turn-in-place. A second, explicitly synthetic bounded velocity-drive adapter passed both forward/reverse and [opposite turn-in-place phases](results/demo_D_turn/report.json) with the semantic room loaded after two session-only scene stabilizations: disable a duplicate floor collider and hold six unanchored cabinet bodies kinematic. Its [live-capture MP4](results/demo_D_turn/live_physx.mp4), [trace](results/demo_D_turn/trace.csv), [capture report](results/demo_D_turn/video_capture_report.json), [English signal plot](results/demo_D_turn/turn.svg), and [independent FMPy replay](results/demo_D_turn/replay_validation.json) are public. The [Demo D guide](docs/DEMO_D.md) explains the process boundary, controlled ablations, numbers, and limitations. The local articulated robot/room USD assets are not included in this repository. Nothing was sent to physical hardware; the adapter is not a calibrated motor model or a navigation controller.
 
 ## License and limits
 
-The repository, including both author-owned openSeRo FMUs and the 16 author-provided modeling screenshots, is licensed under [MIT](LICENSE). The FMU archives contain generated C source and Linux/Windows x86-64 binaries; see [FMU and screenshot provenance](FMU_NOTICE.md). This repository does not claim real-time behavior, FMI 3 Scheduled Execution support, automatic PhysX coupling without the explicit Demo D adapter, SLAM, Nav2, calibrated digital-twin physics, or hardware safety. No part of it is intended for physical actuation.
+The repository, including both author-owned openSeRo FMUs, the 16 author-provided modeling screenshots, and the author's Demo D MP4 recording, is licensed under [MIT](LICENSE) with the author's permission. This does not publish or license the underlying local robot/room USD assets or grant rights in any third-party content visible in the recording. The FMU archives contain generated C source and Linux/Windows x86-64 binaries; see [FMU and screenshot provenance](FMU_NOTICE.md). This repository does not claim real-time behavior, FMI 3 Scheduled Execution support, automatic PhysX coupling without the explicit Demo D adapter, SLAM, Nav2, calibrated digital-twin physics, or hardware safety. No part of it is intended for physical actuation.

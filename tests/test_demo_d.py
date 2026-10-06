@@ -22,6 +22,8 @@ REPLAY = ROOT / "results/demo_D/replay_validation.json"
 TURN_TRACE = ROOT / "results/demo_D_turn/trace.csv"
 TURN_REPORT = ROOT / "results/demo_D_turn/report.json"
 TURN_REPLAY = ROOT / "results/demo_D_turn/replay_validation.json"
+TURN_VIDEO = ROOT / "results/demo_D_turn/live_physx.mp4"
+TURN_VIDEO_CAPTURE_REPORT = ROOT / "results/demo_D_turn/video_capture_report.json"
 WHEELS = ("FL", "FR", "BL", "BR")
 
 
@@ -127,6 +129,19 @@ class DemoDTests(unittest.TestCase):
                 cwd=ROOT, capture_output=True, text=True, check=False,
             )
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_live_turn_video_matches_published_trace(self):
+        capture = json.loads(TURN_VIDEO_CAPTURE_REPORT.read_text(encoding="utf-8"))
+        published = json.loads(TURN_REPORT.read_text(encoding="utf-8"))
+        self.assertEqual(capture["status"], "passed")
+        self.assertEqual(capture["live_rendered_frames"], 48)
+        self.assertEqual(capture["trace_sha256"], published["trace_sha256"])
+        self.assertEqual(capture["trace_sha256"],
+                         hashlib.sha256(TURN_TRACE.read_bytes()).hexdigest())
+        self.assertEqual(capture["live_video_sha256"],
+                         hashlib.sha256(TURN_VIDEO.read_bytes()).hexdigest())
+        with TURN_VIDEO.open("rb") as stream:
+            self.assertEqual(stream.read(8)[4:], b"ftyp")
 
     def test_bounded_drive_replay_rejects_tampered_motor_target(self):
         with tempfile.TemporaryDirectory(prefix="sero_demo_d_motor_tamper_") as directory:
