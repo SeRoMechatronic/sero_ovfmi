@@ -4,5 +4,5 @@ __pycache__/
 .pytest_cache/
 .DS_Store
 results/*/frames/
-results/*/*.log
+results/**/*.log
 results/*/isaac_gui.log

@@ -32,7 +32,17 @@ class PublicDemoTests(unittest.TestCase):
         )
 
     def test_single_fmu_matches_direct_fmpy_and_repeats(self):
-        scene = ROOT / "scenes/demo_a_wheel.usda"
+        scene = ROOT / "scenes/demo_A_wheel_validation.usda"
+        validation = ROOT / "results/demo_A/validation"
+        published = json.loads((validation / "report.json").read_text(encoding="utf-8"))
+        self.assertEqual(published["scene"], str(scene.relative_to(ROOT)))
+        self.assertEqual(published["scene_sha256"], hashlib.sha256(scene.read_bytes()).hexdigest())
+        self.assertEqual(
+            published["trace_sha256"],
+            hashlib.sha256((validation / "trace.csv").read_bytes()).hexdigest(),
+        )
+        self.assertTrue((ROOT / "results/demo_A/demo_A_robot_only.mp4").is_file())
+        self.assertFalse((ROOT / "results/demo_a").exists())
         with tempfile.TemporaryDirectory(prefix="sero_ovfmi_a_") as directory:
             first = run_single(scene, Path(directory) / "first")
             second = run_single(scene, Path(directory) / "second")

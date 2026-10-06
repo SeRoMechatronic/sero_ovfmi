@@ -15,9 +15,9 @@ The FMU ZIP has SHA-256 `5cdb7566ef9dcffbca455a31fad3588fde8063e535002ec88994549
 
 The first-order teaching model has default speed gain 2 rad/s per V, 0.25 s time constant, and ±12 V saturation. For constant input over a 10 ms communication step, the independent reference integrates the exact first-order recurrence. The existing FMU declares named units but not explicit `<BaseUnit>` decompositions; that is an interoperability improvement for a future export, not a reason to claim this FMU is invalid. FMPy's FMU validator returned no issues in the tested environment.
 
-## One-wheel experiment
+## Demo A: one-wheel numerical validation
 
-The [minimal USD](../scenes/demo_a_wheel.usda) declares one `FmuInstance`, one state prim, and four explicit mapping prims. The [runner](../scripts/run_wheel_demo.py) supplies 0 V for 0–0.5 s, 6 V for 0.5–3 s, and 0 V for 3–5 s. At each of 500 10 ms steps it writes the command to ovstage, calls `FmiHost.update_from_ovstage`, `step_sync`, and `write_to_ovstage`, and reads the three published outputs. In parallel, the same FMU is stepped directly by FMPy; speed and angle are also compared with the analytical recurrence.
+The [minimal USD](../scenes/demo_A_wheel_validation.usda) declares one `FmuInstance`, one state prim, and four explicit mapping prims. The [runner](../scripts/run_wheel_demo.py) supplies 0 V for 0–0.5 s, 6 V for 0.5–3 s, and 0 V for 3–5 s. At each of 500 10 ms steps it writes the command to ovstage, calls `FmiHost.update_from_ovstage`, `step_sync`, and `write_to_ovstage`, and reads the three published outputs. In parallel, the same FMU is stepped directly by FMPy; speed and angle are also compared with the analytical recurrence.
 
 | Observation | Result |
 |---|---:|
@@ -29,13 +29,13 @@ The [minimal USD](../scenes/demo_a_wheel.usda) declares one `FmuInstance`, one s
 | `omega(3.25 s)` direct FMPy | `4.414352873647819 rad/s` |
 | SHA-256 of the 500-step CSV | `00afc3189fc92b7a6a4562146d9ba8a08470897ffe0fad4d13ae5d9286612ede` |
 
-The direct FMU variables are Float64; ordinary ovfmi 0.2 output groups observed here are float32. The measured sub-micro-unit difference is consistent with that conversion. This is an observation of the installed version and route, not a claim about all FMI implementations. The [CSV](../results/demo_a/trace.csv) and [JSON report](../results/demo_a/report.json) give each sample and the exact scene/FMU hashes. A repeat run in the same environment produced the same CSV hash.
+The direct FMU variables are Float64; ordinary ovfmi 0.2 output groups observed here are float32. The measured sub-micro-unit difference is consistent with that conversion. This is an observation of the installed version and route, not a claim about all FMI implementations. The [CSV](../results/demo_A/validation/trace.csv) and [JSON report](../results/demo_A/validation/report.json) give each sample and the exact scene/FMU hashes. A repeat run in the same environment produced the same CSV hash.
 
 ## First-step input edge case
 
 The [isolated reproducer](../scripts/probe_initial_input.py) authors 0 V in USD, attaches the FMU, writes 6 V to ovstage before the first step, and invokes `update_from_ovstage` then one 10 ms `step_sync`. Direct FMU evaluation predicts `omega=0.4705267301721219 rad/s`; ovfmi 0.2 in this configuration returned `0`. The [JSON](../results/first_step_probe.json) records both numbers and `first_step_update_applied=false`. The main profiles deliberately start with 0 V, so later changes still test the mapping and do not disguise this edge case. We did not patch ovfmi or claim a general bug in versions we have not tested.
 
-## Four independent FMUs and visual replay
+## Four independent FMUs and visual replay for Demos A and B
 
 The [four-wheel USD](../scenes/demo_movimiento_4ruedas.usda) declares four independent `FmuInstance` prims (FL/FR/BL/BR) and four state prims. The [runner](../scripts/run_four_wheel_motion.py) reads every published output and compares each instance with a distinct direct-FMPy instance. Commands are 20 zero-input steps, 92 opposite-polarity turn steps at ±1.5 V, 150 settling steps, 377 forward steps at +6 V, and 150 final settling steps. Each wheel-angle increment contributes to an explicit no-slip differential-drive pose integrator.
 
@@ -52,7 +52,7 @@ The nominal wheel radius `0.048671331 m`, track `0.172250003 m`, initial pose `(
 | Minimum synthetic AABB clearance after chosen footprint | `0.6541453419 m` |
 | SHA-256 of the 789-step trajectory CSV | `0e37b35c5a0824aa10b4f1fa01a2644dee1e535b6e32177d504d3052be05e592` |
 
-The [trajectory CSV](../results/drive/trajectory.csv) and [JSON report](../results/drive/report.json) contain commands, angles, speeds, pose, geometry assumptions, hashes, and limitations. The [animation builder](../scripts/build_timeline_scenes.py) writes 790 time-sampled robot translations/orientations (including time zero) into `scenes/robot_motion.usda`. Demos [A](../scenes/demo_A_robot_only.usda) and [B](../scenes/demo_B_synthetic_room.usda) compose that same layer. Isaac Sim 6.0.1 rendered [A](../results/demo_A/demo_A_robot_only.mp4) and [B](../results/demo_B/demo_B_synthetic_room.mp4); the respective render/video JSON manifests verify frame count, resolution, source-scene hash, and trace hash. No physical robot or ROS system was connected.
+The [trajectory CSV](../results/drive/trajectory.csv) and [JSON report](../results/drive/report.json) contain commands, angles, speeds, pose, geometry assumptions, hashes, and limitations. The [animation builder](../scripts/build_timeline_scenes.py) writes 790 time-sampled robot translations/orientations (including time zero) into `scenes/robot_motion.usda`. Demos [A](../scenes/demo_A_robot_only.usda) and [B](../scenes/demo_B_synthetic_room.usda) compose that same layer. Isaac Sim 6.0.1 rendered [A](../results/demo_A/demo_A_robot_only.mp4) and [B](../results/demo_B/demo_B_synthetic_room.mp4); the respective render/video JSON manifests verify frame count, resolution, source-scene hash, and trace hash. This four-wheel trajectory is a different run from Demo A's single-wheel validation above. No physical robot or ROS system was connected.
 
 ## What these measurements do not establish
 

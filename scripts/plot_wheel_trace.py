@@ -24,8 +24,8 @@ def points(rows, key, y0, y1, lower, upper):
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--csv", type=Path, default=ROOT / "results" / "demo_a" / "trace.csv")
-    parser.add_argument("--output", type=Path, default=ROOT / "results" / "demo_a" / "trace.svg")
+    parser.add_argument("--csv", type=Path, default=ROOT / "results" / "demo_A" / "validation" / "trace.csv")
+    parser.add_argument("--output", type=Path, default=ROOT / "results" / "demo_A" / "validation" / "trace.svg")
     args = parser.parse_args()
     with args.csv.open(newline="", encoding="utf-8") as stream:
         rows = list(csv.DictReader(stream))

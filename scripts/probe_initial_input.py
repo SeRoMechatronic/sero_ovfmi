@@ -15,7 +15,7 @@ from ovstage import population
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SCENE = ROOT / "scenes" / "demo_a_wheel.usda"
+SCENE = ROOT / "scenes" / "demo_A_wheel_validation.usda"
 STATE = "/World/WheelState"
 
 

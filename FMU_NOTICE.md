@@ -4,4 +4,4 @@
 
 The wheel model is didactic: a first-order angular-speed response with voltage saturation and integrated angle. It is **not** an identified model of any physical Molonbot motor or a safety component. The repository does not contain the private modeling-project ZIP, real robot sensor data, the Molonbot USD asset snapshot, personal correspondence, or third-party robot/room meshes.
 
-The exact FMU SHA-256 is recorded in [results/demo_a/report.json](results/demo_a/report.json) and [results/drive/report.json](results/drive/report.json). Validate the FMU with `fmpy.validation.validate_fmu` before using it elsewhere.
+The exact FMU SHA-256 is recorded in [the Demo A validation report](results/demo_A/validation/report.json) and [the four-wheel report](results/drive/report.json). Validate the FMU with `fmpy.validation.validate_fmu` before using it elsewhere.

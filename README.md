@@ -4,6 +4,10 @@ This repository is a small, public, MIT-licensed experiment showing **actual `ov
 
 The geometry is **original and synthetic**. No Molonbot robot mesh, observed room snapshot, private email, personal imagery, ROS bag, or third-party NVIDIA asset is included. The FMU is a didactic first-order model, not a calibrated physical motor. Nothing here commands a real robot.
 
+## Demo A: numerical validation and robot-only visualization
+
+Demo A now groups both deliverables under one name: the [single-wheel signal validation](results/demo_A/validation/report.json) and the robot-only Isaac Sim video below. These are **complementary but separate runs**: the 500-step single-wheel test checks the USD/ovfmi/FMU signal route against FMPy, while the 789-step four-wheel run generates the trajectory used by the video. The single-wheel trace is not a direct measurement of the animated four-wheel run. See the [Demo A guide](docs/DEMO_A.md) for the exact relationship and files.
+
 ## Watch the two visual demos
 
 | Demo | Video | Animated OpenUSD stage |
@@ -27,7 +31,7 @@ The [two-video page](results/index.html) is convenient for local playback after 
 | Repeat-run trajectory hash | identical in the tested environment |
 | Synthetic aisle travel / final heading error | `2.20149 m` / `-0.00605 rad` |
 
-The [one-wheel trace](results/demo_a/trace.csv), [signal plot](results/demo_a/trace.svg), [one-wheel report](results/demo_a/report.json), [four-wheel trajectory](results/drive/trajectory.csv), [four-wheel report](results/drive/report.json), and [methods/results note](docs/RESULTS.md) are included. The small `ovfmi`–FMPy differences are consistent with `ovfmi` 0.2 publishing ordinary outputs as float32, while the FMU declares Float64. These are numerical correctness comparisons, **not** a controlled performance benchmark.
+The [Demo A one-wheel trace](results/demo_A/validation/trace.csv), [signal plot](results/demo_A/validation/trace.svg), [validation report](results/demo_A/validation/report.json), [four-wheel trajectory](results/drive/trajectory.csv), [four-wheel report](results/drive/report.json), and [methods/results note](docs/RESULTS.md) are included. The small `ovfmi`–FMPy differences are consistent with `ovfmi` 0.2 publishing ordinary outputs as float32, while the FMU declares Float64. These are numerical correctness comparisons, **not** a controlled performance benchmark.
 
 The [first-step probe](results/first_step_probe.json) documents a version-specific negative finding: with `ovfmi==0.2.0`, changing an input in ovstage after attachment but before the first step did not affect that first step in this configuration. The main profiles initialize at 0 V and change later, so they do not hide that behavior.
 
@@ -61,7 +65,7 @@ The scene paths are relative. `scripts/inspect_drive_geometry.py` runs in a sepa
 
 ## How the FMI mapping works
 
-In [the minimal stage](scenes/demo_a_wheel.usda), `FmuInstance` points to [the openSeRo FMU](fmus/MolonbotWheelPlant.fmu). A `FmuConnection` targets `/World/WheelState`; its four `FmuMapping` prims route `voltage_cmd_V` into the FMU and `voltage_applied_V`, `omega_rad_s`, and `theta_rad` back to USD. The [runner](scripts/run_wheel_demo.py) writes the 0/6/0 V profile into ovstage, calls `update_from_ovstage`, `step_sync(0.01)`, and `write_to_ovstage`, then reads every output group and compares it with direct FMPy and an analytical recurrence.
+In [Demo A's minimal validation stage](scenes/demo_A_wheel_validation.usda), `FmuInstance` points to [the openSeRo FMU](fmus/MolonbotWheelPlant.fmu). A `FmuConnection` targets `/World/WheelState`; its four `FmuMapping` prims route `voltage_cmd_V` into the FMU and `voltage_applied_V`, `omega_rad_s`, and `theta_rad` back to USD. The [runner](scripts/run_wheel_demo.py) writes the 0/6/0 V profile into ovstage, calls `update_from_ovstage`, `step_sync(0.01)`, and `write_to_ovstage`, then reads every output group and compares it with direct FMPy and an analytical recurrence.
 
 In [the four-wheel stage](scenes/demo_movimiento_4ruedas.usda), four separate `FmuInstance` prims map to FL/FR/BL/BR state prims. The [four-wheel runner](scripts/run_four_wheel_motion.py) checks every instance against its own direct FMPy reference, integrates the robot pose from published angle increments, and writes the trace. [The animation builder](scripts/build_timeline_scenes.py) then bakes those poses into a reusable USD layer shared by visual Demos A and B. This explicit adapter is why the robot moves; `ovfmi` does not automatically drive Isaac articulations.
 

@@ -289,10 +289,10 @@ def run(scene: Path, output: Path) -> dict:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--scene", type=Path, default=ROOT / "scenes" / "demo_a_wheel.usda"
+        "--scene", type=Path, default=ROOT / "scenes" / "demo_A_wheel_validation.usda"
     )
     parser.add_argument(
-        "--output", type=Path, default=ROOT / "results" / "demo_a"
+        "--output", type=Path, default=ROOT / "results" / "demo_A" / "validation"
     )
     args = parser.parse_args()
     report = run(args.scene.resolve(), args.output.resolve())

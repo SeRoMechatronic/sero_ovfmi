@@ -1,7 +1,7 @@
 {
   "status": "passed",
   "scope": "offline; synthetic voltage command; no physical robot control",
-  "scene": "scenes/demo_a_wheel.usda",
+  "scene": "scenes/demo_A_wheel_validation.usda",
   "scene_sha256": "22feb7f68cfe8323e0d15f44449be3077d471052f209ce9775302e92131ca34d",
   "fmu": "fmus/MolonbotWheelPlant.fmu",
   "fmu_sha256": "5cdb7566ef9dcffbca455a31fad3588fde8063e535002ec8899454965d695f76",
