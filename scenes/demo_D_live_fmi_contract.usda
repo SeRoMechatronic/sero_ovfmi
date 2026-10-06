@@ -1,0 +1,467 @@
+#usda 1.0
+(
+    customLayerData = {
+        string plant_role = "The four plant FMUs are shadow predictions, not PhysX actuators"
+        string purpose = "Live Isaac/PhysX four-wheel PI control through ovfmi"
+        string safety = "Offline simulated hardware only; no ROS or robot actuator connection"
+    }
+    defaultPrim = "World"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "World"
+{
+    def Xform "FmuModels"
+    {
+        def FmuInstance "Controller_FL"
+        {
+            custom bool fmi:enabled = 1
+            custom asset fmi:fmu = @../fmus/MolonbotWheelPIController.fmu@
+
+            def FmuConnection "Signals"
+            {
+                custom rel fmi:targets = </World/ControllerStates/FL>
+
+                def FmuMapping "omega_ref_rad_s"
+                {
+                    custom token fmi:direction = "input"
+                    custom string fmi:fmuAttribute = "omega_ref_rad_s"
+                    custom string fmi:usdAttribute = "molonbot:omega_ref_rad_s"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+
+                def FmuMapping "omega_meas_rad_s"
+                {
+                    custom token fmi:direction = "input"
+                    custom string fmi:fmuAttribute = "omega_meas_rad_s"
+                    custom string fmi:usdAttribute = "molonbot:omega_meas_rad_s"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+
+                def FmuMapping "voltage_cmd_V"
+                {
+                    custom token fmi:direction = "output"
+                    custom string fmi:fmuAttribute = "voltage_cmd_V"
+                    custom string fmi:usdAttribute = "molonbot:voltage_cmd_V"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+
+                def FmuMapping "error_rad_s"
+                {
+                    custom token fmi:direction = "output"
+                    custom string fmi:fmuAttribute = "error_rad_s"
+                    custom string fmi:usdAttribute = "molonbot:error_rad_s"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+
+                def FmuMapping "integral_V"
+                {
+                    custom token fmi:direction = "output"
+                    custom string fmi:fmuAttribute = "integral_V"
+                    custom string fmi:usdAttribute = "molonbot:integral_V"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+            }
+        }
+
+        def FmuInstance "ShadowPlant_FL"
+        {
+            custom bool fmi:enabled = 1
+            custom asset fmi:fmu = @../fmus/MolonbotWheelPlant.fmu@
+
+            def FmuConnection "Signals"
+            {
+                custom rel fmi:targets = </World/ShadowPlantStates/FL>
+
+                def FmuMapping "voltage_cmd_V"
+                {
+                    custom token fmi:direction = "input"
+                    custom string fmi:fmuAttribute = "voltage_cmd_V"
+                    custom string fmi:usdAttribute = "molonbot:voltage_cmd_V"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+
+                def FmuMapping "voltage_applied_V"
+                {
+                    custom token fmi:direction = "output"
+                    custom string fmi:fmuAttribute = "voltage_applied_V"
+                    custom string fmi:usdAttribute = "molonbot:voltage_applied_V"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+
+                def FmuMapping "omega_rad_s"
+                {
+                    custom token fmi:direction = "output"
+                    custom string fmi:fmuAttribute = "omega_rad_s"
+                    custom string fmi:usdAttribute = "molonbot:omega_rad_s"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+
+                def FmuMapping "theta_rad"
+                {
+                    custom token fmi:direction = "output"
+                    custom string fmi:fmuAttribute = "theta_rad"
+                    custom string fmi:usdAttribute = "molonbot:theta_rad"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+            }
+        }
+
+        def FmuInstance "Controller_FR"
+        {
+            custom bool fmi:enabled = 1
+            custom asset fmi:fmu = @../fmus/MolonbotWheelPIController.fmu@
+
+            def FmuConnection "Signals"
+            {
+                custom rel fmi:targets = </World/ControllerStates/FR>
+
+                def FmuMapping "omega_ref_rad_s"
+                {
+                    custom token fmi:direction = "input"
+                    custom string fmi:fmuAttribute = "omega_ref_rad_s"
+                    custom string fmi:usdAttribute = "molonbot:omega_ref_rad_s"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+
+                def FmuMapping "omega_meas_rad_s"
+                {
+                    custom token fmi:direction = "input"
+                    custom string fmi:fmuAttribute = "omega_meas_rad_s"
+                    custom string fmi:usdAttribute = "molonbot:omega_meas_rad_s"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+
+                def FmuMapping "voltage_cmd_V"
+                {
+                    custom token fmi:direction = "output"
+                    custom string fmi:fmuAttribute = "voltage_cmd_V"
+                    custom string fmi:usdAttribute = "molonbot:voltage_cmd_V"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+
+                def FmuMapping "error_rad_s"
+                {
+                    custom token fmi:direction = "output"
+                    custom string fmi:fmuAttribute = "error_rad_s"
+                    custom string fmi:usdAttribute = "molonbot:error_rad_s"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+
+                def FmuMapping "integral_V"
+                {
+                    custom token fmi:direction = "output"
+                    custom string fmi:fmuAttribute = "integral_V"
+                    custom string fmi:usdAttribute = "molonbot:integral_V"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+            }
+        }
+
+        def FmuInstance "ShadowPlant_FR"
+        {
+            custom bool fmi:enabled = 1
+            custom asset fmi:fmu = @../fmus/MolonbotWheelPlant.fmu@
+
+            def FmuConnection "Signals"
+            {
+                custom rel fmi:targets = </World/ShadowPlantStates/FR>
+
+                def FmuMapping "voltage_cmd_V"
+                {
+                    custom token fmi:direction = "input"
+                    custom string fmi:fmuAttribute = "voltage_cmd_V"
+                    custom string fmi:usdAttribute = "molonbot:voltage_cmd_V"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+
+                def FmuMapping "voltage_applied_V"
+                {
+                    custom token fmi:direction = "output"
+                    custom string fmi:fmuAttribute = "voltage_applied_V"
+                    custom string fmi:usdAttribute = "molonbot:voltage_applied_V"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+
+                def FmuMapping "omega_rad_s"
+                {
+                    custom token fmi:direction = "output"
+                    custom string fmi:fmuAttribute = "omega_rad_s"
+                    custom string fmi:usdAttribute = "molonbot:omega_rad_s"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+
+                def FmuMapping "theta_rad"
+                {
+                    custom token fmi:direction = "output"
+                    custom string fmi:fmuAttribute = "theta_rad"
+                    custom string fmi:usdAttribute = "molonbot:theta_rad"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+            }
+        }
+
+        def FmuInstance "Controller_BL"
+        {
+            custom bool fmi:enabled = 1
+            custom asset fmi:fmu = @../fmus/MolonbotWheelPIController.fmu@
+
+            def FmuConnection "Signals"
+            {
+                custom rel fmi:targets = </World/ControllerStates/BL>
+
+                def FmuMapping "omega_ref_rad_s"
+                {
+                    custom token fmi:direction = "input"
+                    custom string fmi:fmuAttribute = "omega_ref_rad_s"
+                    custom string fmi:usdAttribute = "molonbot:omega_ref_rad_s"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+
+                def FmuMapping "omega_meas_rad_s"
+                {
+                    custom token fmi:direction = "input"
+                    custom string fmi:fmuAttribute = "omega_meas_rad_s"
+                    custom string fmi:usdAttribute = "molonbot:omega_meas_rad_s"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+
+                def FmuMapping "voltage_cmd_V"
+                {
+                    custom token fmi:direction = "output"
+                    custom string fmi:fmuAttribute = "voltage_cmd_V"
+                    custom string fmi:usdAttribute = "molonbot:voltage_cmd_V"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+
+                def FmuMapping "error_rad_s"
+                {
+                    custom token fmi:direction = "output"
+                    custom string fmi:fmuAttribute = "error_rad_s"
+                    custom string fmi:usdAttribute = "molonbot:error_rad_s"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+
+                def FmuMapping "integral_V"
+                {
+                    custom token fmi:direction = "output"
+                    custom string fmi:fmuAttribute = "integral_V"
+                    custom string fmi:usdAttribute = "molonbot:integral_V"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+            }
+        }
+
+        def FmuInstance "ShadowPlant_BL"
+        {
+            custom bool fmi:enabled = 1
+            custom asset fmi:fmu = @../fmus/MolonbotWheelPlant.fmu@
+
+            def FmuConnection "Signals"
+            {
+                custom rel fmi:targets = </World/ShadowPlantStates/BL>
+
+                def FmuMapping "voltage_cmd_V"
+                {
+                    custom token fmi:direction = "input"
+                    custom string fmi:fmuAttribute = "voltage_cmd_V"
+                    custom string fmi:usdAttribute = "molonbot:voltage_cmd_V"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+
+                def FmuMapping "voltage_applied_V"
+                {
+                    custom token fmi:direction = "output"
+                    custom string fmi:fmuAttribute = "voltage_applied_V"
+                    custom string fmi:usdAttribute = "molonbot:voltage_applied_V"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+
+                def FmuMapping "omega_rad_s"
+                {
+                    custom token fmi:direction = "output"
+                    custom string fmi:fmuAttribute = "omega_rad_s"
+                    custom string fmi:usdAttribute = "molonbot:omega_rad_s"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+
+                def FmuMapping "theta_rad"
+                {
+                    custom token fmi:direction = "output"
+                    custom string fmi:fmuAttribute = "theta_rad"
+                    custom string fmi:usdAttribute = "molonbot:theta_rad"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+            }
+        }
+
+        def FmuInstance "Controller_BR"
+        {
+            custom bool fmi:enabled = 1
+            custom asset fmi:fmu = @../fmus/MolonbotWheelPIController.fmu@
+
+            def FmuConnection "Signals"
+            {
+                custom rel fmi:targets = </World/ControllerStates/BR>
+
+                def FmuMapping "omega_ref_rad_s"
+                {
+                    custom token fmi:direction = "input"
+                    custom string fmi:fmuAttribute = "omega_ref_rad_s"
+                    custom string fmi:usdAttribute = "molonbot:omega_ref_rad_s"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+
+                def FmuMapping "omega_meas_rad_s"
+                {
+                    custom token fmi:direction = "input"
+                    custom string fmi:fmuAttribute = "omega_meas_rad_s"
+                    custom string fmi:usdAttribute = "molonbot:omega_meas_rad_s"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+
+                def FmuMapping "voltage_cmd_V"
+                {
+                    custom token fmi:direction = "output"
+                    custom string fmi:fmuAttribute = "voltage_cmd_V"
+                    custom string fmi:usdAttribute = "molonbot:voltage_cmd_V"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+
+                def FmuMapping "error_rad_s"
+                {
+                    custom token fmi:direction = "output"
+                    custom string fmi:fmuAttribute = "error_rad_s"
+                    custom string fmi:usdAttribute = "molonbot:error_rad_s"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+
+                def FmuMapping "integral_V"
+                {
+                    custom token fmi:direction = "output"
+                    custom string fmi:fmuAttribute = "integral_V"
+                    custom string fmi:usdAttribute = "molonbot:integral_V"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+            }
+        }
+
+        def FmuInstance "ShadowPlant_BR"
+        {
+            custom bool fmi:enabled = 1
+            custom asset fmi:fmu = @../fmus/MolonbotWheelPlant.fmu@
+
+            def FmuConnection "Signals"
+            {
+                custom rel fmi:targets = </World/ShadowPlantStates/BR>
+
+                def FmuMapping "voltage_cmd_V"
+                {
+                    custom token fmi:direction = "input"
+                    custom string fmi:fmuAttribute = "voltage_cmd_V"
+                    custom string fmi:usdAttribute = "molonbot:voltage_cmd_V"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+
+                def FmuMapping "voltage_applied_V"
+                {
+                    custom token fmi:direction = "output"
+                    custom string fmi:fmuAttribute = "voltage_applied_V"
+                    custom string fmi:usdAttribute = "molonbot:voltage_applied_V"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+
+                def FmuMapping "omega_rad_s"
+                {
+                    custom token fmi:direction = "output"
+                    custom string fmi:fmuAttribute = "omega_rad_s"
+                    custom string fmi:usdAttribute = "molonbot:omega_rad_s"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+
+                def FmuMapping "theta_rad"
+                {
+                    custom token fmi:direction = "output"
+                    custom string fmi:fmuAttribute = "theta_rad"
+                    custom string fmi:usdAttribute = "molonbot:theta_rad"
+                    custom int2 fmi:usdMapping = (0, 1)
+                }
+            }
+        }
+    }
+
+    def Xform "ControllerStates"
+    {
+        def Xform "FL"
+        {
+            custom float molonbot:error_rad_s = 0
+            custom float molonbot:integral_V = 0
+            custom float molonbot:omega_meas_rad_s = 0
+            custom float molonbot:omega_ref_rad_s = 0
+            custom float molonbot:voltage_cmd_V = 0
+        }
+
+        def Xform "FR"
+        {
+            custom float molonbot:error_rad_s = 0
+            custom float molonbot:integral_V = 0
+            custom float molonbot:omega_meas_rad_s = 0
+            custom float molonbot:omega_ref_rad_s = 0
+            custom float molonbot:voltage_cmd_V = 0
+        }
+
+        def Xform "BL"
+        {
+            custom float molonbot:error_rad_s = 0
+            custom float molonbot:integral_V = 0
+            custom float molonbot:omega_meas_rad_s = 0
+            custom float molonbot:omega_ref_rad_s = 0
+            custom float molonbot:voltage_cmd_V = 0
+        }
+
+        def Xform "BR"
+        {
+            custom float molonbot:error_rad_s = 0
+            custom float molonbot:integral_V = 0
+            custom float molonbot:omega_meas_rad_s = 0
+            custom float molonbot:omega_ref_rad_s = 0
+            custom float molonbot:voltage_cmd_V = 0
+        }
+    }
+
+    def Xform "ShadowPlantStates"
+    {
+        def Xform "FL"
+        {
+            custom float molonbot:omega_rad_s = 0
+            custom float molonbot:theta_rad = 0
+            custom float molonbot:voltage_applied_V = 0
+            custom float molonbot:voltage_cmd_V = 0
+        }
+
+        def Xform "FR"
+        {
+            custom float molonbot:omega_rad_s = 0
+            custom float molonbot:theta_rad = 0
+            custom float molonbot:voltage_applied_V = 0
+            custom float molonbot:voltage_cmd_V = 0
+        }
+
+        def Xform "BL"
+        {
+            custom float molonbot:omega_rad_s = 0
+            custom float molonbot:theta_rad = 0
+            custom float molonbot:voltage_applied_V = 0
+            custom float molonbot:voltage_cmd_V = 0
+        }
+
+        def Xform "BR"
+        {
+            custom float molonbot:omega_rad_s = 0
+            custom float molonbot:theta_rad = 0
+            custom float molonbot:voltage_applied_V = 0
+            custom float molonbot:voltage_cmd_V = 0
+        }
+    }
+}

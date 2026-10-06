@@ -1,0 +1,17 @@
+{
+  "status": "passed",
+  "steps": 320,
+  "wheel_samples": 1280,
+  "fmu_instances_replayed": 8,
+  "trace_sha256": "ef2cb0de3a6bf507c6174bcc8a7dc20c314a5b308b80aa91cbf585fa6b116355",
+  "controller_fmu_sha256": "5b61db8b91e1618539984222841e2b8c986f5cb9812698c5cd1bc3a3720bdafd",
+  "plant_fmu_sha256": "5cdb7566ef9dcffbca455a31fad3588fde8063e535002ec8899454965d695f76",
+  "comparison_tolerance": 0.0001,
+  "maximum_abs_fmpy_ovfmi_signal_difference": 2.384185791015625e-07,
+  "maximum_abs_step_continuity_difference": 0.0,
+  "maximum_abs_motor_equation_difference_Nm": 0.0,
+  "maximum_abs_physx_wheel_speed_rad_s": 2.9337692260742188,
+  "maximum_abs_controller_voltage_V": 4.689536094665527,
+  "saturated_wheel_samples": 0,
+  "scope": "Numerical FMU/ovfmi replay of live Isaac measurements; not a hardware validation"
+}

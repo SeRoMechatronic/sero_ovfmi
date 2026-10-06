@@ -85,11 +85,26 @@ The newly authored [PI-controller FMU](../fmus/MolonbotWheelPIController.fmu) ha
 
 The 0 rad/s interval at 3.2–4.2 s and the +30 rad/s interval at 6.2–7.2 s did **not** settle within their intervals. This is reported as `null`, not silently interpreted as zero. The reported final errors are snapshot errors at each segment boundary, not all steady-state errors. The 2%-band settling time reported for −6 rad/s is `1.99 s`, nearly the entire 2 s segment. Controller output remains within ±12 V, including saturation. The [unit tests](../tests/test_demo_c.py) verify the exact first-step result, FMU metadata, rejection of NaN input, invalid parameters, and an unsupported 20 ms communication step. They also mutate a scratch copy of the USD to demonstrate that the [mapping preflight](../scripts/validate_demo_c_scene.py) rejects a wrong variable, disconnected target, wrong start value, and missing FMU. The [Isaac Sim MP4](../results/demo_C/demo_C_closed_loop.mp4) replays published angle/reference/speed samples as a data visualization, not physical simulation. See the [Demo C guide](DEMO_C.md) for the schedule, screenshots of the author's openSeRo model, visualization provenance, and reproduction commands.
 
+## Demo D: live FMI control of PhysX joints
+
+Unlike A/B/C, Demo D does not animate authored robot poses. Four PI-controller FMU instances read actual Isaac Sim/PhysX wheel-joint velocities and command joint efforts through an explicitly synthetic motor adapter. Four plant-FMU instances are shadow models only. The [public trace](../results/demo_D/trace.csv) contains 320 steps and 1,280 wheel rows from a clear-ground run of the local articulated robot. The [run report](../results/demo_D/report.json) records the exact FMU, USD, and trace hashes; the [independent FMPy replay](../results/demo_D/replay_validation.json) re-steps all eight FMUs with the measured inputs.
+
+| Demo D observation | Result |
+|---|---:|
+| Live PhysX/FMI communication steps | 320 × 10 ms |
+| Maximum FMPy versus ovfmi-published signal difference | `2.384185791015625e-7` |
+| Maximum one-step continuity / synthetic torque-equation difference | `0` / `0 N·m` |
+| Maximum clear-ground wheel speed / command | `2.93377 rad/s` / `4.68954 V` |
+| Maximum clear-ground base excursion from initial pose | `0.15246 m` |
+| Maximum clear-ground wheel-speed spread | `0.09728 rad/s` |
+
+The local real-time camera captured 30 frames during the physics steps; the MP4 is held outside the public repo because its robot/room mesh has not been cleared for MIT publication. In a separate full-room run, the maximum wheel-speed spread rose to `16.50184 rad/s`; we suspect interaction with nearby geometry, but no contact-event trace was recorded, so this is an **inference**, not a diagnosed collision. A turn-in-place diagnostic did not rotate the base sufficiently and is not counted as passed. See the [Demo D guide](DEMO_D.md) for process boundaries, assumptions, commands, and limitations.
+
 ## What these measurements do not establish
 
 - They do not validate a real motor, battery, wheel radius, room geometry, localization estimate, obstacle avoidance, or Nav2 behavior.
-- USD pose animation is not PhysX traction/contact simulation. The wheel meshes do not rotate in the videos.
+- The A/B/C USD pose animations are not PhysX traction/contact simulations. Demo D does step PhysX wheel joints, but it is still not a calibrated vehicle model.
 - FMU numerical agreement is not a latency or throughput benchmark. The single-run `attach_ms`, median, and p95 fields in the JSON are exploratory only.
-- Demo C tests an **offline, didactic** controller–plant loop only. It does not establish real-time control, safe actuation, calibrated motor response, four-wheel closed-loop navigation, FMI Scheduled Execution, SSP packaging, or behavior with ovfmi 0.3.
+- Demo C tests an **offline, didactic** controller–plant loop. Demo D adds four-wheel PhysX feedback, but it does not establish real-time control, safe actuation, calibrated motor response, reliable turning, four-wheel closed-loop navigation, FMI Scheduled Execution, SSP packaging, or behavior with ovfmi 0.3.
 
 Primary references: [ovfmi package page](https://pypi.org/project/ovfmi/) and [FMI 3.0.2 specification](https://fmi-standard.org/docs/3.0.2/).

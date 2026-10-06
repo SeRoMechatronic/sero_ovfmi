@@ -1,0 +1,60 @@
+{
+  "status": "passed",
+  "scope": "live FMU-controlled Isaac/PhysX simulation; no ROS or physical robot",
+  "profile": "forward_reverse",
+  "environment": "clear",
+  "steps": 320,
+  "h_s": 0.01,
+  "uncommanded_settle_steps": 0,
+  "fmu_instances": 8,
+  "controllers_in_feedback": 4,
+  "plant_fmus_role": "shadow prediction only; PhysX is the controlled plant",
+  "communication_delay_steps": 1,
+  "live_rendered_frames": 30,
+  "live_video_sha256": "489c901ad9a6e77ed03ce7dc6ae50e42518d3106790b84f430e25b17bfe6bf61",
+  "scene_sha256": "88fa4817227250d927f7c9588d83a30c45765f480ade1d9b9e12fa230829baae",
+  "fmi_contract_sha256": "f230191ed3ba7f4fdeb24cee30425ca8318a97be2f72495cc1ce755e32bbf763",
+  "controller_fmu_sha256": "5b61db8b91e1618539984222841e2b8c986f5cb9812698c5cd1bc3a3720bdafd",
+  "plant_fmu_sha256": "5cdb7566ef9dcffbca455a31fad3588fde8063e535002ec8899454965d695f76",
+  "trace_sha256": "ef2cb0de3a6bf507c6174bcc8a7dc20c314a5b308b80aa91cbf585fa6b116355",
+  "disabled_ros_graphs_in_session": [
+    "/World/action_graphs"
+  ],
+  "disabled_room_prims_in_session": [
+    "/World/estructura_sala_actual",
+    "/World/gemelo_semantico",
+    "/World/mapa_camara_actual",
+    "/World/mapa_l2_actual"
+  ],
+  "joint_names": [
+    "wheel_left_front_joint",
+    "wheel_right_front_joint",
+    "wheel_left_back_joint",
+    "wheel_right_back_joint"
+  ],
+  "joint_indices": [
+    2,
+    4,
+    1,
+    3
+  ],
+  "synthetic_motor": {
+    "torque_gain_Nm_per_V": 0.004,
+    "back_emf_V_per_rad_s": 0.2,
+    "torque_limit_Nm": 0.05,
+    "equation": "clip(gain * (previous_controller_voltage - back_emf * measured_wheel_speed), +/-torque_limit)"
+  },
+  "base_displacement_from_initial_m": 0.02917958429198108,
+  "maximum_base_displacement_from_initial_m": 0.1524553975500403,
+  "maximum_abs_measured_wheel_speed_rad_s": 2.9337692260742188,
+  "maximum_wheel_speed_spread_rad_s": 0.09728153049945831,
+  "maximum_abs_base_yaw_change_rad": 4.0583365638280355e-05,
+  "maximum_abs_controller_voltage_V": 4.689536094665527,
+  "all_wheels_reversed_measured_rotation": true,
+  "limitations": [
+    "Motor constants and wheel/ground friction are simulation assumptions, not physical calibration.",
+    "The local Molonbot USD is not included in the public repository.",
+    "The four shadow plant FMUs do not actuate PhysX.",
+    "No real-time wall-clock guarantee, hardware control, or mecanum lateral-motion validation is claimed."
+  ]
+}
